@@ -58,12 +58,10 @@ class PageAddView(silvaforms.SMIAddForm):
         # for this content type
         pass
 
-#XXXaaltepet - how to register this as a container policy?
-class SilvaPagePolicy(Persistent):
+class PageContainerPolicy(Persistent):
     """A ContainerPolicy for Silva Pages"""
     grok.implements(IContainerPolicy)
     def createDefaultDocument(self, container, title):
         """create a Silva Page as the default document in
            the container"""
-        container.manage_addProduct['Silva'].manage_addPage('index', title)
-        container.index.sec_update_last_author_info()
+        container.manage_addProduct['silva.app.page'].manage_addPage('index', title)
