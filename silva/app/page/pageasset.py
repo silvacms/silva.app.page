@@ -15,6 +15,7 @@ from Products.Silva.VersionedAsset import CatalogedVersionedAsset
 from Products.Silva.Version import CatalogedVersion
 from Products.SilvaExternalSources.interfaces import IExternalSource
 from silva.core import conf as silvaconf
+from zeam.form import silva as silvaforms
 
 from interfaces import (IPageAsset, IPageAssetVersion)
 #, IPartFactory
@@ -95,3 +96,10 @@ class PageAsset(CatalogedVersionedAsset):
         PageAsset.inheritedAttribute('__init__')(self, id)
         
 InitializeClass(PageAsset)
+
+class PageAssetAddView(silvaforms.SMIAddForm):
+    """Add form for a a page asset"""
+    grok.context(IPageAsset)
+    grok.name(u'Silva Page Asset')
+    
+    fields = silvaforms.Fields(silvaconf.interfaces.IBasicTitledContent)
