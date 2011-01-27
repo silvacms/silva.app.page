@@ -1,5 +1,7 @@
 #zope
 from five import grok
+from zope.component import getUtility
+
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Persistence import Persistent
@@ -8,10 +10,13 @@ from Persistence import Persistent
 from Products.Silva import SilvaPermissions
 from Products.Silva.VersionedContent import CatalogedVersionedContent
 from Products.Silva.Version import CatalogedVersion
+from silva.translations import translate as _
 from silva.core.interfaces import IContainerPolicy
 from silva.core import conf as silvaconf
+from zeam.form import silva as silvaforms
 
 from silva.core.contentlayout.contentlayout import ContentLayout
+from silva.core.contentlayout.interfaces.schema import ITemplateSchema
 from interfaces import IPage, IPageVersion
 
 class PageVersion(CatalogedVersion, ContentLayout):
@@ -38,6 +43,20 @@ class Page(CatalogedVersionedContent):
     silvaconf.priority(-10)
 InitializeClass(Page)
 
+class IPageAddSchema(silvaconf.interfaces.ITitledContent, ITemplateSchema):
+    """Pages have rich titled content and also the content layout template"""
+
+class PageAddView(silvaforms.SMIAddForm):
+    """Add form for a a page asset"""
+    grok.context(IPage)
+    grok.name(u'Silva Page')
+    
+    fields = silvaforms.Fields(IPageAddSchema)
+    
+    def update(self):
+        #XXXaaltepet here we hide the template fields if not appropriate
+        # for this content type
+        pass
 
 #XXXaaltepet - how to register this as a container policy?
 class SilvaPagePolicy(Persistent):
