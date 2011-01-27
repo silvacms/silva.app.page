@@ -24,9 +24,8 @@ setup(name='silva.app.page',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          # -*- Extra requirements: -*-
+          'silva.core.conf',
+          'silva.core.interfaces',
+          'silva.core.contentlayout',
       ],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
       )
