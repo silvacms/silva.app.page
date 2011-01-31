@@ -27,5 +27,6 @@ setup(name='silva.app.page',
           'silva.core.conf',
           'silva.core.interfaces',
           'silva.core.contentlayout',
+	  'Products.SilvaExternalSources',
       ],
       )
