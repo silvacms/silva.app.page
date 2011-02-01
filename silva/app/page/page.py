@@ -21,6 +21,7 @@ from interfaces import IPage, IPageVersion
 
 class PageVersion(CatalogedVersion, ContentLayout):
     """ A version of a Silva Page (i.e. a web page) """
+    
     security = ClassSecurityInfo()
     
     meta_type = 'Silva Page Version'
@@ -33,7 +34,8 @@ InitializeClass(PageVersion)
 
 class Page(CatalogedVersionedContent):
     """ A Silva Page represents a web page, supporting advanced
-        inline editing and content layout."""
+        inline editing and content layout.
+    """
 
     security = ClassSecurityInfo()
     grok.implements(IPage)
@@ -47,7 +49,8 @@ class IPageAddSchema(silvaconf.interfaces.ITitledContent, ITemplateSchema):
     """Pages have rich titled content and also the content layout template"""
 
 class PageAddView(silvaforms.SMIAddForm):
-    """Add form for a a page asset"""
+    """Add form for a page asset"""
+    
     grok.context(IPage)
     grok.name(u'Silva Page')
     
@@ -60,8 +63,11 @@ class PageAddView(silvaforms.SMIAddForm):
 
 class PageContainerPolicy(Persistent):
     """A ContainerPolicy for Silva Pages"""
+    
     grok.implements(IContainerPolicy)
+    
     def createDefaultDocument(self, container, title):
         """create a Silva Page as the default document in
-           the container"""
+           the container
+        """
         container.manage_addProduct['silva.app.page'].manage_addPage('index', title)

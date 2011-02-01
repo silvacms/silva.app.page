@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html tal:omit-tag=""
+  lang="en"
+  xml:lang="en"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:metal="http://xml.zope.org/namespaces/metal"
+  xmlns:notal="http://www.infrae.com/silva/notal"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+  i18n:domain="silva"
+  tal:define="maintitlecolspan string:2;
+              model request/model;
+              editable model/get_editable;
+              vein string:edit"
+>
+<metal:use-macro use-macro="here/macro_tab_edit/macros/editor">
+
+<metal:fillscript fill-slot="script">
+<!--<script type="text/javascript" 
+    tal:attributes="src here/reference.js/absolute_url"></script>-->
+<!--<script type="text/javascript" tal:attributes="src context/globals/tinymce/jscripts/tiny_mce/tiny_mce.js/absolute_url"></script>-->
+</metal:fillscript>
+
+<metal:fillcss fill-slot="editor_css">
+<style type="text/css">
+table.listing td.designator {
+  width: 33%;
+}
+table.richtext td {
+  padding: 0;
+}
+div.header-title, div.description {
+ color: #333;
+ background-color: #e5f2ff;
+ padding: 1ex;
+}
+div.header-title {
+  border: 1px solid #789;
+  border-bottom: none;
+  font-size: 115%;
+  padding-bottom: 0;
+}
+div.description {
+  border: 1px solid #789;
+  border-top: none;
+}
+</style>
+</metal:fillcss>
+
+<metal:editorcontent fill-slot="preview_content">
+ <metal:use-macro use-macro="here/macro_edit/macros/two-col-layout">
+  <metal:fillbody fill-slot="main-model">
+    <table class="listing"
+           tal:define="config python:context.REQUEST.model.get_previewable().getConfig();
+                       name python:context.REQUEST.model.get_previewable().getName();
+                       title python:getattr(context.REQUEST.model, name).get_title();
+                       form python:getattr(context.REQUEST.model, name).form();">
+      <thead>
+       <tal:block replace="nothing">
+        ______________ vein + title row ______________
+       </tal:block>
+       <tr>
+        <td class="top" tal:attributes="colspan maintitlecolspan|nothing">
+         <metal:use use-macro="here/macro_edit/macros/main-title" />
+        </td>
+       </tr>      
+      </thead>
+      <tbody>
+      <tr>
+        <th width="15%"
+          i18n:translate="">
+          attributes
+        </th>
+        <th i18n:translate="">
+          content
+        </th>
+      </tr>
+      <tr class="odd">
+        <td class="designator"><label>Page Asset Type</label></td>
+        <td tal:content="title" />
+      </tr>
+      <tr tal:repeat="item python: form.get_fields()"
+          tal:attributes="class python: repeat['item'].odd() and 'odd' or 'even'">
+        <td tal:content="structure python: '<label>%s</label><p>%s</p>'%(item.title(), item.get_value('description'))"
+            class="designator" />
+        <td tal:content="structure python: config.get(item.id,'')" />
+      </tr>
+      </tbody>
+    </table>
+
+    <div style="color: black;">
+      <h2>Content Preview</h2>
+      <hr />
+      <div tal:replace="structure model/preview" />
+    </div>
+
+    </metal:fillbody>
+ </metal:use-macro>
+</metal:editorcontent>
+
+<metal:editorcontent fill-slot="editor_content">
+<!--<tal:init define="dummy python:model.sec_create_lock()" />-->
+<tal:rep replace="structure string:<script type='text/javascript'>" />
+var objurl = '<span tal:replace="editable/absolute_url" />';
+var containerurl = '<span tal:replace="python:model.get_container().absolute_url() + '/'" />';
+<tal:rep replace="structure string:</script>" />
+ <metal:use-macro use-macro="here/macro_edit/macros/two-col-layout">
+  <metal:fillbody fill-slot="main-model">
+    <table class="listing">
+      <thead>
+       <tal:block replace="nothing">
+        ______________ vein + title row ______________
+       </tal:block>
+       <tr>
+        <td class="top" tal:attributes="colspan maintitlecolspan|nothing">
+         <metal:use use-macro="here/macro_edit/macros/main-title" />
+        </td>
+       </tr>      
+      </thead>
+      <tbody>
+      <tr class="even">
+        <td class="designator" width="33%">
+          <label for="extsource" i18n:translate="">
+            External Source
+          </label>
+          <p i18n:translate="">the external source for this <span tal:replace="model/meta_type" /></p>
+        </td>
+        <td class="field">
+          <select name="extsource" id="extsource"
+            tal:define="esname editable/get_part_name">
+            <option value="">Not Set / No External Source</option>
+            <option 
+              tal:repeat="es model/@@editview/get_external_source_list" 
+              tal:attributes="value python:es[1];
+                              selected python:es[1] == esname and 'selected' or nothing"
+              tal:content="python:es[0]"
+              />
+<!--   XXX use this one when we have external source priorities
+            <option 
+              tal:repeat="es model/@@editview/get_external_source_list" 
+              tal:attributes="value python:es[2];
+                              selected python:es[2] == esname and 'selected' or nothing"
+              tal:content="python:es[1]"
+              />-->
+          </select>
+        </td>
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr class="controls">
+        <td>&nbsp;</td>
+        <td>
+          <input class="button"
+            type="submit"
+            value="change external source"
+            name="change-es:method"
+            i18n:attributes="value;title"
+           />
+        </td>
+      </tr>
+      </tfoot>
+    </table>
+    <tal:cond
+      tal:condition="editable/get_part_name">
+<!--      <tal:repl replace="structure model/@@editview/getEditDialog" />-->
+    </tal:cond>
+
+    </metal:fillbody>
+ </metal:use-macro>
+</metal:editorcontent>
+
+</metal:use-macro>
+</html>
