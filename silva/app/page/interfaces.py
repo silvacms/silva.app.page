@@ -1,9 +1,9 @@
-from silva.core.interfaces import (ICatalogedVersionedAsset, IVersion,
-                                   ICatalogedVersionedContent)
+from silva.core.interfaces import (IVersionedAsset, IVersion,
+                                   IVersionedContent)
 from silva.core.contentlayout.interfaces import (IVersionedContentLayout,
                                                  IContentLayout)
 
-class IPage(ICatalogedVersionedContent, IVersionedContentLayout):
+class IPage(IVersionedContent, IVersionedContentLayout):
     """ A Silva Page represents a web page, supporting advanced
         inline editing and content layout.
     """
@@ -11,7 +11,7 @@ class IPage(ICatalogedVersionedContent, IVersionedContentLayout):
 class IPageVersion(IVersion, IContentLayout):
    """A version of a Silva Page (i.e. a web page) """
  
-class IPageAsset(ICatalogedVersionedAsset):
+class IPageAsset(IVersionedAsset):
     """A Page Asset is a versioned instance of an External
        Source, which can be placed/reused on multiple Silva Pages.
     """

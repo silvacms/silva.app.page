@@ -8,8 +8,8 @@ from Persistence import Persistent
 
 #silva
 from Products.Silva import SilvaPermissions
-from Products.Silva.VersionedContent import CatalogedVersionedContent
-from Products.Silva.Version import CatalogedVersion
+from Products.Silva.VersionedContent import VersionedContent
+from Products.Silva.Version import Version
 from silva.translations import translate as _
 from silva.core.interfaces import IContainerPolicy
 from silva.core import conf as silvaconf
@@ -19,7 +19,7 @@ from silva.core.contentlayout.contentlayout import ContentLayout
 from silva.core.contentlayout.interfaces.schema import ITemplateSchema
 from silva.app.page.interfaces import IPage, IPageVersion
 
-class PageVersion(CatalogedVersion, ContentLayout):
+class PageVersion(Version, ContentLayout):
     """ A version of a Silva Page (i.e. a web page) """
     
     security = ClassSecurityInfo()
@@ -32,7 +32,7 @@ class PageVersion(CatalogedVersion, ContentLayout):
         ContentLayout.__init__(self, id)
 InitializeClass(PageVersion)
 
-class Page(CatalogedVersionedContent):
+class Page(VersionedContent):
     """ A Silva Page represents a web page, supporting advanced
         inline editing and content layout.
     """

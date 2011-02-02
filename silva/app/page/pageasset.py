@@ -23,8 +23,8 @@ from Globals import InitializeClass
 
 from Products.Formulator.Errors import FormValidationError
 from Products.Silva import SilvaPermissions
-from Products.Silva.VersionedAsset import CatalogedVersionedAsset
-from Products.Silva.Version import CatalogedVersion
+from Products.Silva.VersionedAsset import VersionedAsset
+from Products.Silva.Version import Version
 from Products.SilvaExternalSources.interfaces import IExternalSource
 from Products.SilvaExternalSources import ExternalSource
 from silva.translations import translate as _
@@ -39,7 +39,7 @@ from silva.app.page.interfaces import IPageAsset, IPageAssetVersion
 #from browser.interfaces import IContentLayoutPartEditWidget
 
 
-class PageAssetVersion(CatalogedVersion):
+class PageAssetVersion(Version):
     """A version of a Page Asset"""
     
     security = ClassSecurityInfo()
@@ -104,7 +104,7 @@ class PageAssetVersion(CatalogedVersion):
 InitializeClass(PageAssetVersion)
     
 
-class PageAsset(CatalogedVersionedAsset):
+class PageAsset(VersionedAsset):
     """A Page Asset is a versioned instance of an External
        Source, which can be placed/reused on multiple Silva Pages.
     """
