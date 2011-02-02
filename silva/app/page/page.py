@@ -17,7 +17,7 @@ from zeam.form import silva as silvaforms
 
 from silva.core.contentlayout.contentlayout import ContentLayout
 from silva.core.contentlayout.interfaces.schema import ITemplateSchema
-from interfaces import IPage, IPageVersion
+from silva.app.page.interfaces import IPage, IPageVersion
 
 class PageVersion(CatalogedVersion, ContentLayout):
     """ A version of a Silva Page (i.e. a web page) """

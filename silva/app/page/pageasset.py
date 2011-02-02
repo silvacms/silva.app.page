@@ -1,3 +1,7 @@
+
+from logging import getLogger
+logger = getLogger('silva.app.page.pageasset')
+
 # Zope 3
 from five import grok
 from zope.interface import Interface, alsoProvides
@@ -30,13 +34,10 @@ from zeam.form import silva as silvaforms
 from zeam.form import base
 from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE, DISPLAY
 
-from logging import getLogger
-logger = getLogger('silva.app.page.pageasset')
-
-from interfaces import IPageAsset, IPageAssetVersion
+from silva.core.contentlayout.interfaces import IPartFactory, IPartEditWidget
+from silva.app.page.interfaces import IPageAsset, IPageAssetVersion
 #from browser.interfaces import IContentLayoutPartEditWidget
 
-from silva.core.contentlayout.interfaces import IPartFactory, IPartEditWidget
 
 class PageAssetVersion(CatalogedVersion):
     """A version of a Page Asset"""
