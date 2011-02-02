@@ -3,7 +3,7 @@ from five import grok
 from zope.component import getUtility
 
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Persistence import Persistent
 
 #silva

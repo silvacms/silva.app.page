@@ -19,7 +19,7 @@ from zExceptions import BadRequest
 from OFS import Folder
 from OFS.interfaces import IObjectWillBeAddedEvent
 from AccessControl import ClassSecurityInfo, getSecurityManager
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 
 from Products.Formulator.Errors import FormValidationError
 from Products.Silva import SilvaPermissions
