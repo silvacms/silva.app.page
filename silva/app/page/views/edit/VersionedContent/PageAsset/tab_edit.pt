@@ -130,17 +130,10 @@ var containerurl = '<span tal:replace="python:model.get_container().absolute_url
             <option value="">Not Set / No External Source</option>
             <option 
               tal:repeat="es model/@@editview/get_external_source_list" 
-              tal:attributes="value python:es[1];
-                              selected python:es[1] == esname and 'selected' or nothing"
-              tal:content="python:es[0]"
-              />
-<!--   XXX use this one when we have external source priorities
-            <option 
-              tal:repeat="es model/@@editview/get_external_source_list" 
               tal:attributes="value python:es[2];
                               selected python:es[2] == esname and 'selected' or nothing"
               tal:content="python:es[1]"
-              />-->
+              />
           </select>
         </td>
       </tr>

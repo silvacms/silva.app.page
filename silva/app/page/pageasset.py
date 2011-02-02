@@ -139,8 +139,7 @@ class PartEditViewHelper(grok.View):
         """Return an ordered list of the External Sources within the
            current context.  Each item is a three-tuple of 
            [ priority, title, name, source ]"""
-        logger.info('XXXaaltepet: external sources sort by priority')
-        sources = [ [s[1].title.encode('utf-8'),s[0], s[1]] \
+        sources = [ [s[1].priority(), s[1].title.encode('utf-8'),s[0], s[1]] \
                     for s in ExternalSource.availableSources(self.context.aq_inner)
                     if s[1].id != 'cs_page_asset' ]
         sources.sort()
@@ -196,27 +195,29 @@ def externalsources_source(context):
     """Return a SimpleVocabulary of the available external sources in
     the supplied context"""
     
-    sources = [SimpleTerm(value=None, token=None, title=u"Not Set")]
-    logger.info('XXXaaltepet: external sources sort by priority')
-    #for es in ExternalSource.availableSources(context.aq_inner):
-    #    if s[1].id != 'cs_page_asset':
-    #        sources.append( [s[1].priority(), s[1].title.encode('utf-8'), s[1], s[1]] )
-    #sources.sort()
+    vocab = [SimpleTerm(value=None, token=None, title=u"Not Set")]
+    sources = []
+    for es in ExternalSource.availableSources(context.aq_inner):
+        if es[1].id != 'cs_page_asset':
+            sources.append( [es[1].priority(), es[1].title.encode('utf-8'), 
+                             unicode(es[1].id) ] )
+    sources.sort()
     
-    for s in ExternalSource.availableSources(context.aq_inner):
-        sources.append(SimpleTerm(
-            value=unicode(s[0]),
-            token=unicode(s[0]),
-            title=s[1].title
+    for s in sources:
+        vocab.append(SimpleTerm(
+            value=s[2],
+            token=s[2],
+            title=s[1]
             ))
-    return SimpleVocabulary(sources)
+    return SimpleVocabulary(vocab)
 
 class IExternalSourceSchema(Interface):
     """Schema for listing the available external sources"""
     part_name = schema.Choice(
         title=_(u"External Source"),
         description=_(u"The external source for this Silva Page Asset"),
-        source=externalsources_source)
+        source=externalsources_source,
+        required=True)
     
 class IPageAssetAddSchema(silvaconf.interfaces.IBasicTitledContent,
                           IExternalSourceSchema):
@@ -238,6 +239,7 @@ class PageAssetAddView(silvaforms.SMIAddForm):
         name = data.getWithDefault('part_name')
         if name is not None:
             content.get_editable().set_part_name(name)
+        return content
 
 #-------------
 # EDIT VIEW
