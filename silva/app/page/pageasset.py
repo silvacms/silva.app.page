@@ -85,13 +85,15 @@ class PageAssetVersion(CatalogedVersion):
         return self._part.get_name()
 
     security.declareProtected(SilvaPermissions.ChangeSilvaContent,
-                              'setConfig')
+                              'set_config')
     def set_config(self, config_dict):
         #convert config to a dict, then create a PersistentMapping
         # out of it.  
         d = PersistentMapping(dict(config_dict))
         self._part.set_config(d)
         
+    security.declareProtected(SilvaPermissions.AccessContentsInformation,
+                              'get_config')
     def get_config(self):
         if not self._part:
             return None
