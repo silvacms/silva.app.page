@@ -131,6 +131,9 @@ class PartEditViewHelper(grok.View):
     """
     grok.context(IPageAsset)
     grok.name('editview')
+    grok.require('silva.ChangeSilvaContent')
+
+    security = ClassSecurityInfo()
     
     def get_external_source_list(self):
         """Return an ordered list of the External Sources within the
@@ -142,12 +145,47 @@ class PartEditViewHelper(grok.View):
                     if s[1].id != 'cs_page_asset' ]
         sources.sort()
         return sources
+
+    def get_edit_dialog(self):
+        """Displays the edit dialog for the editable version's
+           Part (an IPartEditWidget)"""
+        editable = self.context.get_editable()
+        source = editable._get_source(editable.get_part_name())
+        ad = getMultiAdapter((source, self.request),
+                             name='part-edit-widget')
+        #reuse the ContentLayoutEditor's part edit widget.
+        #this requires that some "dummy" info be passed in,
+        # (this info is only added as hidden input fields
+        # to the form)
+        return ad(contentlayout=editable,
+                  mode="edit",
+                  slotname="a",
+                  partkey=12345,
+                  partconfig=editable.get_config(),
+                  submitButtonName="save-config:method",
+                  from_request=self.request.form.has_key('save-config'),
+                  suppressFormTag=True,
+                  submitOnTop=True)
+    
+    #this declaration is needed to support calling this from a PythonScript
+    security.declareProtected(SilvaPermissions.ChangeSilvaContent,
+                              'save_external_source_settings')
+    def save_external_source_settings(self):
+        """save the external source settings for the editable
+           versions external source.
+           Raises FormValidationError if the validation fails."""
+        editable = self.context.get_editable()
+        source = editable._get_source(editable.get_part_name())
+        form = source.get_parameters_form()
+        result = form.validate_all(self.request)
+        editable.set_config(dict(result))
     
     def render(self):
         """there is no render for this, it's just a grok helper class.
            It's a view so it is easily accessible via path traversal in
            path expressions"""
         return u""
+InitializeClass(PartEditViewHelper)
 
 #-------------
 # ADD VIEW
@@ -200,6 +238,7 @@ class PageAssetAddView(silvaforms.SMIAddForm):
         name = data.getWithDefault('part_name')
         if name is not None:
             content.get_editable().set_part_name(name)
+
 #-------------
 # EDIT VIEW
 # NOTE :: for 2.3 this is commented out.  When SMI edit screens are more
@@ -345,7 +384,7 @@ class PageAssetAddView(silvaforms.SMIAddForm):
         ##this requires that some "dummy" info be passed in,
         ## (this info is only added as hidden input fields
         ## to the form)
-        #return ad(content=self.editable,
+        #return ad(contentlayout=self.editable,
                   #mode="edit",
                   #slotname="a",
                   #partkey=12345,

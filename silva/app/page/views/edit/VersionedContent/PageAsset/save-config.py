@@ -6,7 +6,7 @@ view = context
 from Products.Formulator.Errors import ValidationError, FormValidationError
 
 try:
-    model.restrictedTraverse(['@@editview']).saveExternalSourceSettings()
+    model.restrictedTraverse(['@@editview']).save_external_source_settings()
 except FormValidationError, e:
     return context.tab_edit(message_type="error",
                             message=context.render_form_errors(e))
