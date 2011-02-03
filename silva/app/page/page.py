@@ -70,4 +70,5 @@ class PageContainerPolicy(Persistent):
         """create a Silva Page as the default document in
            the container
         """
-        container.manage_addProduct['silva.app.page'].manage_addPage('index', title)
+        container.manage_addProduct['silva.app.page'].manage_addPage('index', 
+                                                                     title)

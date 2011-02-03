@@ -20,6 +20,7 @@ from OFS import Folder
 from OFS.interfaces import IObjectWillBeAddedEvent
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from App.class_init import InitializeClass
+from Acquisition import aq_inner
 
 from Products.Formulator.Errors import FormValidationError
 from Products.Silva import SilvaPermissions
@@ -140,7 +141,7 @@ class PartEditViewHelper(grok.View):
            current context.  Each item is a three-tuple of 
            [ priority, title, name, source ]"""
         sources = [ [s[1].priority(), s[1].title.encode('utf-8'),s[0], s[1]] \
-                    for s in ExternalSource.availableSources(self.context.aq_inner)
+                    for s in ExternalSource.availableSources(aq_inner(self.context))
                     if s[1].id != 'cs_page_asset' ]
         sources.sort()
         return sources
@@ -197,7 +198,7 @@ def externalsources_source(context):
     
     vocab = [SimpleTerm(value=None, token=None, title=u"Not Set")]
     sources = []
-    for es in ExternalSource.availableSources(context.aq_inner):
+    for es in ExternalSource.availableSources(aq_inner(context)):
         if es[1].id != 'cs_page_asset':
             sources.append( [es[1].priority(), es[1].title.encode('utf-8'), 
                              unicode(es[1].id) ] )
