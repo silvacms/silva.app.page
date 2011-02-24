@@ -124,6 +124,44 @@ class PageAsset(VersionedAsset):
         
 InitializeClass(PageAsset)
 
+class PageAssetVersionView(grok.View):
+    grok.context(IPageAssetVersion)
+    grok.name('content.html')
+    
+    def render(self):
+        """render page asset version"""
+        #XXX this isn't needed in Silva 2.3
+        #save model, set model, restore model
+        #has_model = self.request.has_key('model')
+        #model = self.request.get('model', None)
+        #self.request['model'] = self.context.get_content()
+        #XXX this should be on interface, not name
+        #view = getMultiAdapter((self.context._part, self.request),
+        #                       interface = IContentLayoutPartView)
+        view = getMultiAdapter((self.context._part, self.request),
+                               name="part-view")
+        html = view()
+        #XXX this isn't needed in Silva 2.3
+        #if has_model:
+            #self.request['model'] = model
+        #else:
+            #del self.request['model']
+        return html
+    
+class PageAssetView(grok.View):
+    """render a page asset.  This is intended to be called by
+       SilvaObject.view_version.  The particular version to render
+       is stored in request.other['model']"""
+    grok.context(IPageAsset)
+    grok.name('content.html')
+    
+    def render(self):
+        """render the version in request.other['model'] -- by looking up
+           that version's content.html"""
+        view = getMultiAdapter((self.request['model'], self.request),
+                               name="content.html")
+        return view()
+
 class PartEditViewHelper(grok.View):
     """This class exists to provide grok helper functions to the
        SilvaViews-based PageAsset edit tab.  The functionality provided
@@ -151,6 +189,7 @@ class PartEditViewHelper(grok.View):
            Part (an IPartEditWidget)"""
         editable = self.context.get_editable()
         source = editable._get_source(editable.get_part_name())
+        #XXX this needs to be changed to get by interface, NOT name
         ad = getMultiAdapter((source, self.request),
                              name='part-edit-widget')
         #reuse the ContentLayoutEditor's part edit widget.
