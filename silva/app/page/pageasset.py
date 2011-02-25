@@ -35,7 +35,8 @@ from zeam.form import silva as silvaforms
 from zeam.form import base
 from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE, DISPLAY
 
-from silva.core.contentlayout.interfaces import IPartFactory, IPartEditWidget
+from silva.core.contentlayout.interfaces import (IPartFactory, 
+                                                 IPartEditWidget, IPartView)
 from silva.app.page.interfaces import IPageAsset, IPageAssetVersion
 #from browser.interfaces import IContentLayoutPartEditWidget
 
@@ -135,11 +136,8 @@ class PageAssetVersionView(grok.View):
         #has_model = self.request.has_key('model')
         #model = self.request.get('model', None)
         #self.request['model'] = self.context.get_content()
-        #XXX this should be on interface, not name
-        #view = getMultiAdapter((self.context._part, self.request),
-        #                       interface = IContentLayoutPartView)
         view = getMultiAdapter((self.context._part, self.request),
-                               name="part-view")
+                               interface=IPartView)
         html = view()
         #XXX this isn't needed in Silva 2.3
         #if has_model:
@@ -189,9 +187,8 @@ class PartEditViewHelper(grok.View):
            Part (an IPartEditWidget)"""
         editable = self.context.get_editable()
         source = editable._get_source(editable.get_part_name())
-        #XXX this needs to be changed to get by interface, NOT name
         ad = getMultiAdapter((source, self.request),
-                             name='part-edit-widget')
+                             interface=IPartEditWidget)
         #reuse the ContentLayoutEditor's part edit widget.
         #this requires that some "dummy" info be passed in,
         # (this info is only added as hidden input fields
@@ -421,7 +418,7 @@ class PageAssetAddView(silvaforms.SMIAddForm):
             #return u""
         #source = self.editable._getSource(self.name)
         #ad = getMultiAdapter((source, self.request),
-                             #name='part-edit-widget')
+                             #interface=IPartEditWidget)
         ##reuse the ContentLayoutEditor's part edit widget.
         ##this requires that some "dummy" info be passed in,
         ## (this info is only added as hidden input fields
