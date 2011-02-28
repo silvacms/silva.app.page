@@ -1,7 +1,7 @@
 from silva.core.interfaces import (IVersionedAsset, IVersion,
-                                   IVersionedContent)
-from silva.core.contentlayout.interfaces import (IVersionedContentLayout,
-                                                 IContentLayout)
+                                   IVersionedContent,
+                                   IVersionedContentLayout,
+                                   IContentLayout)
 
 class IPage(IVersionedContent, IVersionedContentLayout):
     """ A Silva Page represents a web page, supporting advanced
