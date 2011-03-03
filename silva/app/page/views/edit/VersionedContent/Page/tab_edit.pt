@@ -27,7 +27,7 @@
 </tal:block>
 
 <script type="text/javascript"
-    tal:attributes="src string:${base_url}/++resource++Silva.contentlayout.browser.resources/cl.js"></script>
+    tal:attributes="src string:${base_url}/++resource++silva.core.contentlayout.browser.resources/cl.js"></script>
 
 <script type="text/javascript">
 YAHOO.util.Event.onDOMReady(function() {
@@ -35,11 +35,8 @@ YAHOO.util.Event.onDOMReady(function() {
 });
 </script>
 
-<script type="text/javascript" 
-    tal:attributes="src here/reference.js/absolute_url"></script>
-
 <link rel="stylesheet" type="text/css"
-    tal:attributes="href string:${base_url}/++resource++Silva.contentlayout.browser.resources/smi.css" />
+    tal:attributes="href string:${base_url}/++resource++silva.core.contentlayout.browser.resources/smi.css" />
     
 <link rel="stylesheet" type="text/css"
     tal:attributes="href string:${base_url}/service_content_templates/icons.css" />
@@ -49,8 +46,8 @@ YAHOO.util.Event.onDOMReady(function() {
 
 <metal:block fill-slot="editor_content">
 <div id="main">
-<tal:cl define="editable model/get_editable"
-        replace="structure editable/@@tab_edit_cl" />
+ <tal:cl define="editable model/get_editable"
+        replace="structure editable/@@layoutedittab" />
 </div>
 </metal:block>
 

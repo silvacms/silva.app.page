@@ -30,7 +30,6 @@ from Products.SilvaExternalSources.interfaces import IExternalSource
 from Products.SilvaExternalSources import ExternalSource
 from silva.translations import translate as _
 from silva.core import conf as silvaconf
-from silva.core.smi.interfaces import IEditTabIndex
 from zeam.form import silva as silvaforms
 from zeam.form import base
 from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE, DISPLAY
@@ -38,8 +37,6 @@ from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE, DISPLAY
 from silva.core.contentlayout.interfaces import (IPartFactory, 
                                                  IPartEditWidget, IPartView)
 from silva.app.page.interfaces import IPageAsset, IPageAssetVersion
-#from browser.interfaces import IContentLayoutPartEditWidget
-
 
 class PageAssetVersion(Version):
     """A version of a Page Asset"""
@@ -102,10 +99,8 @@ class PageAssetVersion(Version):
         #always return a copy of the config, to prevent accidental modification.
         #  use set_config to update this object's config.
         return self._part.get_config(copy=True)
-
 InitializeClass(PageAssetVersion)
     
-
 class PageAsset(VersionedAsset):
     """A Page Asset is a versioned instance of an External
        Source, which can be placed/reused on multiple Silva Pages.
