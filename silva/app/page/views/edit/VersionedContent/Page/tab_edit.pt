@@ -39,7 +39,7 @@ YAHOO.util.Event.onDOMReady(function() {
     tal:attributes="href string:${base_url}/++resource++silva.core.contentlayout.browser.resources/smi.css" />
     
 <link rel="stylesheet" type="text/css"
-    tal:attributes="href string:${base_url}/service_content_templates/icons.css" />
+    tal:attributes="href string:${base_url}/service_contentlayout/templateicons.css" />
 
 </metal:block>
 
