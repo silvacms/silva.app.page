@@ -29,7 +29,7 @@ setup(name='silva.app.page',
           'silva.core.contentlayout',
 	  'Products.SilvaExternalSources',
       ],
-      entrypoints="""
+      entry_points="""
       [zodbupdate]
       renames = silva.app.page:CLASS_CHANGES
       """
