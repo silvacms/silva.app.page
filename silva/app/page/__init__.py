@@ -36,3 +36,14 @@ class IExtension(Interface):
     """
 
 install = Installer("silva.app.page", IExtension)
+
+CLASS_CHANGES = {
+    'Products.Silva.contentlayout.Page Page':
+    'silva.app.page.page Page',
+    'Products.Silva.contentlayout.Page PageVersion':
+    'silva.app.page.page PageVersion',
+    'Products.Silva.contentlayout.PageAsset PageAsset':
+    'silva.app.page.paegasset PageAsset'
+    'Products.Silva.contentlayout.PageAsset PageAssetVersion':
+    'silva.app.page.paegasset PageAssetVersion'
+    }
