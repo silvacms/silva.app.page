@@ -54,7 +54,8 @@ YAHOO.util.Event.onDOMReady(function() {
 <metal:block fill-slot="preview_content">
  <div id="published-preview">
   <iframe id="published-preview-iframe" width="100%" height="480"
-    tal:attributes="src string:${model/absolute_url}/preview_html"></iframe>
+    tal:define="url python:model.aq_inner.aq_parent.absolute_url() + '/++preview++/' + model.id"
+    tal:attributes="src url"></iframe>
   <script type="text/javascript">
     (function() {
         YAHOO.util.Event.onDOMReady(function() {

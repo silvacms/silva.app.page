@@ -43,7 +43,9 @@ CLASS_CHANGES = {
     'Products.Silva.contentlayout.Page PageVersion':
     'silva.app.page.page PageVersion',
     'Products.Silva.contentlayout.PageAsset PageAsset':
-    'silva.app.page.paegasset PageAsset',
+    'silva.app.page.pageasset PageAsset',
     'Products.Silva.contentlayout.PageAsset PageAssetVersion':
-    'silva.app.page.paegasset PageAssetVersion'
+    'silva.app.page.pageasset PageAssetVersion',
+    'Products.Silva.contentlayout.Page SilvaPagePolicy':
+    'silva.app.page.page PageContainerPolicy'
     }
