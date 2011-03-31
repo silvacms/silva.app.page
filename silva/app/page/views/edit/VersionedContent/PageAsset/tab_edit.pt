@@ -51,10 +51,10 @@ div.description {
  <metal:use-macro use-macro="here/macro_edit/macros/two-col-layout">
   <metal:fillbody fill-slot="main-model">
     <table class="listing"
-           tal:define="config python:context.REQUEST.model.get_previewable().getConfig();
-                       name python:context.REQUEST.model.get_previewable().getName();
+           tal:define="config python:context.REQUEST.model.get_previewable().get_config();
+                       name python:context.REQUEST.model.get_previewable().get_part_name();
                        title python:getattr(context.REQUEST.model, name).get_title();
-                       form python:getattr(context.REQUEST.model, name).form();">
+                       form python:getattr(context.REQUEST.model, name).get_parameters_form();">
       <thead>
        <tal:block replace="nothing">
         ______________ vein + title row ______________

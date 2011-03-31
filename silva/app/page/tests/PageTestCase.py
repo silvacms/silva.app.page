@@ -1,15 +1,22 @@
 from silva.core.contentlayout.tests import ContentLayoutTestCase
 
-from layer import PageLayer
+import layer
 
 import silva.app.page
 
 class PageTestCase(ContentLayoutTestCase.ContentLayoutTestCase):
-    layer = PageLayer(silva.app.page,
-                       zcml_file='configure.zcml')
+    layer = layer.FunctionalPageLayer
+    #(silva.app.page,
+#                       zcml_file='configure.zcml')
 
     def setUp(self):
         super(PageTestCase, self).setUp()
-        root = self.layer.get_application()
-        self.page = self.add_page(root, 'page', 'Page')
-        self.pa = self.add_page_asset(root, 'pageasset', 'Page Asset')
+        self.page = self.add_page(self.root, 'page', 'Page')
+        self.pa = self.add_page_asset(self.root, 'pageasset', 'Page Asset')
+        self.pub1_pa = self.add_page_asset(self.root.pub, 'pageasset', 
+                                           'Page Asset')
+
+    def add_page_asset(self, object, id, title):
+        return self.addObject(object, 'PageAsset', id, title=title,
+                              product='silva.app.page')
+      
