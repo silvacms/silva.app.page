@@ -100,7 +100,8 @@ class PageAssetVersion(Version):
         #  use set_config to update this object's config.
         return self._part.get_config(copy=True)
 InitializeClass(PageAssetVersion)
-    
+
+
 class PageAsset(VersionedAsset):
     """A Page Asset is a versioned instance of an External
        Source, which can be placed/reused on multiple Silva Pages.
@@ -117,8 +118,8 @@ class PageAsset(VersionedAsset):
     def __init__(self, id):
         """Initialize PageAsset""" 
         PageAsset.inheritedAttribute('__init__')(self, id)
-        
 InitializeClass(PageAsset)
+
 
 class PageAssetVersionView(grok.View):
     grok.context(IPageAssetVersion)
@@ -126,20 +127,11 @@ class PageAssetVersionView(grok.View):
     
     def render(self):
         """render page asset version"""
-        #XXX this isn't needed in Silva 2.3
-        #save model, set model, restore model
-        #has_model = self.request.has_key('model')
-        #model = self.request.get('model', None)
-        #self.request['model'] = self.context.get_content()
         view = getMultiAdapter((self.context._part, self.request),
                                interface=IPartView)
         html = view()
-        #XXX this isn't needed in Silva 2.3
-        #if has_model:
-            #self.request['model'] = model
-        #else:
-            #del self.request['model']
         return html
+    
     
 class PageAssetView(grok.View):
     """render a page asset.  This is intended to be called by
@@ -155,6 +147,7 @@ class PageAssetView(grok.View):
                                name="content.html")
         return view()
 
+    
 class PartEditViewHelper(grok.View):
     """This class exists to provide grok helper functions to the
        SilvaViews-based PageAsset edit tab.  The functionality provided
@@ -243,6 +236,7 @@ def externalsources_source(context):
             ))
     return SimpleVocabulary(vocab)
 
+
 class IExternalSourceSchema(Interface):
     """Schema for listing the available external sources"""
     part_name = schema.Choice(
@@ -250,12 +244,14 @@ class IExternalSourceSchema(Interface):
         description=_(u"The external source for this Silva Page Asset"),
         source=externalsources_source,
         required=True)
+
     
 class IPageAssetAddSchema(silvaconf.interfaces.IBasicTitledContent,
                           IExternalSourceSchema):
     """The schema for the page asset add screen is the
        id, title, and the asset's initial external source"""
 
+    
 class PageAssetAddView(silvaforms.SMIAddForm):
     """Simple Add form for a page asset"""
     grok.context(IPageAsset)
