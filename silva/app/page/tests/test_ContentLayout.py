@@ -25,6 +25,8 @@ class ContentLayoutClassTestCase(PageTestCase):
         # test to make sure switching template works
         e = self.page.get_editable()
         e.switch_template(self.layoutName)
+        #switch_template creates a new editable version, so get it here
+        e = self.page.get_editable()
         self.assertEquals(self.layoutName, e.get_layout_name())
         #Test to make sure invalid template name raises error
         self.assertRaises(ComponentLookupError, e.switch_template, ';lkasj')
