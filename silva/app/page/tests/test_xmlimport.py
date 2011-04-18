@@ -1,22 +1,21 @@
 import os
 
-from ContentLayoutTestCase import ContentLayoutTestCase
 from Products.Silva.silvaxml import xmlimport
+
+from PageTestCase import PageTestCase
 
 def testopen(path, rw):
     directory = os.path.dirname(__file__)
     return open(os.path.join(directory, path), rw)
 
-class XMLImportTestCase(ContentLayoutTestCase):
+class XMLImportTestCase(PageTestCase):
 
-    def afterSetUp(self):
-        super(XMLImportTestCase, self).afterSetUp()
+    def setUp(self):
+        super(XMLImportTestCase, self).setUp()
         #copy external source into the root
-        self.installExtension("SilvaExternalSources")
         self.login('manager')
-        token = self.root.service_codesources.manage_copyObjects(["cs_rich_text"])
-        self.root.manage_pasteObjects(token)
-        token = self.root.service_codesources.manage_copyObjects(["cs_page_asset"])
+        token = self.root.service_codesources.manage_copyObjects(["cs_rich_text",
+                                                                  "cs_page_asset"])
         self.root.manage_pasteObjects(token)
         self.login('chiefeditor')
 
@@ -36,11 +35,11 @@ class XMLImportTestCase(ContentLayoutTestCase):
         e = p1.get_editable()
         assert(e)
         self.assertEquals('Page 1', p1.get_title_editable())
-        self.assertEquals('silva.contentlayouttemplates.onecolumn', e.getLayoutName())
-        parts = list(e.getPartsForSlot('maincontent'))
+        self.assertEquals('silva.core.contentlayout.templates.OneColumn', e.get_layout_name())
+        parts = list(e.get_parts_for_slot('maincontent'))
         self.assertEquals(1, len(parts))
-        self.assertEquals('cs_rich_text', parts[0].getName())
-        self.assertEquals({'rich_text': '<p>Test</p>'}, parts[0].getConfig())
+        self.assertEquals('cs_rich_text', parts[0].get_name())
+        self.assertEquals({'rich_text': '<p>Test</p>'}, parts[0].get_config())
 
         p2 = pub.p2
         assert(p2)
@@ -49,8 +48,8 @@ class XMLImportTestCase(ContentLayoutTestCase):
         e = p2.get_editable()
         assert(e)
         self.assertEquals('Page 2', p2.get_title_editable())
-        self.assertEquals('silva.contentlayouttemplates.onecolumn', e.getLayoutName())
-        parts = list(e.getPartsForSlot('maincontent'))
+        self.assertEquals('silva.core.contentlayout.templates.OneColumn', e.get_layout_name())
+        parts = list(e.get_parts_for_slot('maincontent'))
         self.assertEquals(0, len(parts))
 
         p3 = pub.p3
@@ -59,13 +58,13 @@ class XMLImportTestCase(ContentLayoutTestCase):
         assert(not p3.get_editable())
         v = p3.get_viewable()
         assert(v)
-        self.assertEquals('silva.contentlayouttemplates.onecolumn', v.getLayoutName())
-        parts = list(v.getPartsForSlot('maincontent'))
+        self.assertEquals('silva.core.contentlayout.templates.OneColumn', v.get_layout_name())
+        parts = list(v.get_parts_for_slot('maincontent'))
         self.assertEquals(2, len(parts))
-        self.assertEquals('cs_rich_text', parts[0].getName())
-        self.assertEquals({'rich_text': '<p>Hello world</p>'}, parts[0].getConfig())
-        self.assertEquals('cs_page_asset', parts[1].getName())
-        self.assertEquals({'placement': 'above', 'object_path': 'pa'}, parts[1].getConfig())
+        self.assertEquals('cs_rich_text', parts[0].get_name())
+        self.assertEquals({'rich_text': '<p>Hello world</p>'}, parts[0].get_config())
+        self.assertEquals('cs_page_asset', parts[1].get_name())
+        self.assertEquals({'placement': 'above', 'object_path': 'pa'}, parts[1].get_config())
 
     def test_page_asset_import(self):
         source = testopen('data/test_pageassets.xml', 'r')
@@ -83,8 +82,8 @@ class XMLImportTestCase(ContentLayoutTestCase):
         e = pa1.get_editable()
         assert(e)
         self.assertEquals('Page Asset 1', pa1.get_title_editable())
-        self.assertEquals('cs_rich_text', e.getName())
-        self.assertEquals({'rich_text': '<p><strong>July</strong> <em>20</em>, <span style="text-decoration: underline;">1969</span></p>'}, e.getConfig())
+        self.assertEquals('cs_rich_text', e.get_part_name())
+        self.assertEquals({'rich_text': '<p><strong>July</strong> <em>20</em>, <span style="text-decoration: underline;">1969</span></p>'}, e.get_config())
 
         pa2 = pub.pa2
         assert(pa2)
@@ -93,16 +92,16 @@ class XMLImportTestCase(ContentLayoutTestCase):
         e = pa2.get_editable()
         assert(e)
         self.assertEquals('Page Asset 2', pa2.get_title_editable())
-        self.assertEquals('cs_rich_text', e.getName())
-        self.assertEquals({}, e.getConfig())
+        self.assertEquals('cs_rich_text', e.get_part_name())
+        self.assertEquals({}, e.get_config())
 
         pa3 = pub.pa3
         assert(pa3)
         self.assertEquals('Page Asset 3', pa3.get_title())
         assert(pa3.get_viewable())
         assert(not pa3.get_editable())
-        self.assertEquals('cs_rich_text', pa3.get_viewable().getName())
-        self.assertEquals({'rich_text': '<p>This is a test!</p>'}, pa3.get_viewable().getConfig())
+        self.assertEquals('cs_rich_text', pa3.get_viewable().get_part_name())
+        self.assertEquals({'rich_text': '<p>This is a test!</p>'}, pa3.get_viewable().get_config())
 
 import unittest
 def test_suite():
