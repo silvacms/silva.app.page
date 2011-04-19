@@ -38,7 +38,7 @@ class PageHandler(SilvaBaseHandler):
 class PageContentHandler(SilvaBaseHandler):
     def getOverrides(self):
         return {
-            (NS_CL, 'part'): PagePartHandler
+            (NS_CL, 'part'): ContentLayoutPartHandler
             }
     
     def characters(self, chars):
@@ -64,7 +64,7 @@ class PageContentHandler(SilvaBaseHandler):
             self._result.switch_template(self._chars)
 
 
-class PagePartHandler(SilvaBaseHandler):
+class ContentLayoutPartHandler(SilvaBaseHandler):
     def getOverrides(self):
         return {
             (NS_CL, 'config'): ConfigElementHandler

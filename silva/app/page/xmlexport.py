@@ -1,6 +1,7 @@
 from five import grok
 from zope.interface import Interface
 
+from Products.Silva.silvaxml.xmlimport import NS_URI
 from Products.Silva.silvaxml.xmlexport import (VersionedContentProducer,
                                                SilvaBaseProducer,
                                                theXMLExporter)
@@ -22,14 +23,10 @@ class PageProducer(VersionedContentProducer):
         self.versions()
         self.endElementNS(NS_CL, 'page')
 
-
-class PageVersionProducer(SilvaBaseProducer):
-    """Export a version of a Silva Page object to XML."""
-    grok.adapts(PageVersion, Interface)
-
-    def sax(self):
-        self.startElementNS(NS_CL, 'content', {'version_id': self.context.id})
-        self.metadata()
+class ContentLayoutProducerMixin(object):
+    """Mixin to export content layout xml"""
+    
+    def content_layout_xml(self):
         self.startElementNS(NS_CL, 'layout')
         self.handler.characters(self.context.get_layout_name())
         self.endElementNS(NS_CL, 'layout')
@@ -50,7 +47,16 @@ class PageVersionProducer(SilvaBaseProducer):
                     self.endElementNS(NS_CL, k)
                 self.endElementNS(NS_CL, 'config')
                 self.endElementNS(NS_CL, 'part')
-        self.endElementNS(NS_CL, 'content')
+
+class PageVersionProducer(ContentLayoutProducerMixin, SilvaBaseProducer):
+    """Export a version of a Silva Page object to XML."""
+    grok.adapts(PageVersion, Interface)
+
+    def sax(self):
+        self.startElementNS(NS_URI, 'content', {'version_id': self.context.id})
+        self.metadata()
+        self.content_layout_xml()
+        self.endElementNS(NS_URI, 'content')
 
 
 class PageAssetProducer(VersionedContentProducer):
