@@ -5,6 +5,7 @@ from Products.Silva.testing import smi_settings
 from PageTestCase import PageTestCase
 from layer import FunctionalPageLayer
 
+
 class ContentLayoutFunctionalTest(PageTestCase):
     
     layer = FunctionalPageLayer
@@ -21,7 +22,6 @@ class ContentLayoutFunctionalTest(PageTestCase):
         self.pageurl = '/root/page/'
         self.onetem = 'silva.core.contentlayout.templates.OneColumn'
         self.twotem = 'silva.core.contentlayout.templates.TwoColumn'
-        
         
     def test_switch_template(self):
         sb = self.layer.get_browser(smi_settings)
@@ -59,7 +59,7 @@ class ContentLayoutFunctionalTest(PageTestCase):
         status = sb.open(self.pageurl + '0/edit/switchlayouttemplate', 
                          query={'newTemplate':self.twotem})
         
-    def test_parts_1(self):
+    def test_parts(self):
         #Add an ES to the page
         sb = self.layer.get_browser(smi_settings)
         sb.login('editor')
@@ -67,6 +67,7 @@ class ContentLayoutFunctionalTest(PageTestCase):
 
         validation_url = self.pageurl + '0/edit/validateeditdialog'
         save_url = self.pageurl + '0/edit/savepart'
+        switch_template = self.pageurl + '0/edit/switchlayouttemplate'
 
         #Test bad part type (i.e. non-existent codesource)
         status  = sb.open(validation_url, 
@@ -87,270 +88,496 @@ class ContentLayoutFunctionalTest(PageTestCase):
         self.assertEquals(200, status)
         self.assertEquals('<h1 class="page-title">Test</h1>', sb.contents)
 
-        
-    def atest_silvaPageAjaxCalls(self):
-        
-        
-
         #First, test validation
-        status, url = sb.go('0/tab_edit_cl_switch_template', 'newTemplate=silva.contentlayouttemplates.twocolumn')
-        self.assertEquals(200, status)
-        self.assertEquals('OK', sb.browser.contents)
+        status = sb.open(switch_template,
+                         method='POST',
+                         form={'newTemplate':
+                               'silva.core.contentlayout.templates.TwoColumn'})
+        self.assertEquals(status, 200)
+        self.assertEquals('OK', sb.contents)
+
+    def test_parts_validation(self):
         
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=es&slotname=feature&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = True
+
+        validation_url = self.pageurl + '0/edit/validateeditdialog'
+        save_url = self.pageurl + '0/edit/savepart'
+        rich_copy = '<p>hi</p>'
+        
+        status = sb.open(validation_url, 
+                         query={'parttype':'es',
+                                'esname':'cs_rich_text',
+                                'field_rich_text':rich_copy}
+                         )
         self.assertEquals(200, status)
-        self.assertEquals('Success', sb.browser.contents)
+        self.assertEquals('Success', sb.contents)
 
         #Test invalid esname
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=es&slotname=feature&esname=cs_rich_tex&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
+        status = sb.open(validation_url,
+                         query={'parttype':'es',
+                                'esname':'cs_rich_tex',
+                                'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing parttype
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=&slotname=feature&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
+        status = sb.open(validation_url, 
+                         query={'parttype':'',
+                                'esname':'cs_rich_text',
+                                'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing parttype
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'slotname=feature&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
+        status = sb.open(validation_url, 
+                         query={'esname':'cs_rich_text',
+                                'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
+        
+        #Test missing esname
+        status = sb.open(validation_url, 
+                         query={'parttype':'es',
+                                'esname':'',
+                                'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
+        
+        #Test missing esname
+        status = sb.open(validation_url, 
+                         query={'parttype':'es',
+                                'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
+        
+        #Test missing field_rich_text
+        status = sb.open(validation_url, 
+                         query={'parttype':'es',
+                                'esname':'cs_rich_text',
+                                'field_rich_text':''}
+                         )
+        #unlike BadRequest, which is erroneously a 500/internal server error,
+        # when formulator doesn't validate, a 400 is raised
         self.assertEquals(400, status)
         
-        #Test missing slotname (not used during validation)
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=es&slotname=&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(200, status)
-        self.assertEquals('Success', sb.browser.contents)
+        #Test missing field_rich_text
+        status = sb.open(validation_url, 
+                         query={'parttype':'es',
+                                'esname':'cs_rich_text'}
+                         )
+        self.assertEquals(400, status)
         
-        #Test missing slotname (not used during validation)
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=es&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(200, status)
-        self.assertEquals('Success', sb.browser.contents)
+    def test_parts_add_bad(self):
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = True
 
-        #Test missing esname
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=es&slotname=feature&esname=&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
+        add_url = self.pageurl + '0/edit/addparttoslot'
+        rich_copy = '<p>hi</p>'
+        
+        #Test invalid esname
+        status = sb.open(add_url,
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'esname':'cs_bad',
+                               'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
+        
+        #Test missing slotname
+        status = sb.open(add_url, 
+                         form={'parttype':'es',
+                               'slotname':'',
+                               'esname':'cs_rich_text',
+                               'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
+        
+        #Test missing slotname
+        status = sb.open(add_url, 
+                         form={'parttype':'es',
+                               'esname':'cs_rich_text',
+                               'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing esname
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=es&slotname=feature&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
+        status = sb.open(add_url, 
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'esname':'',
+                               'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
+        
+        #Test missing esname
+        status = sb.open(add_url, 
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing field_rich_text
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=es&slotname=feature&esname=cs_rich_text&field_rich_text=')
-        self.assertEquals(400, status)
+        status = sb.open(add_url, 
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'esname':'cs_rich_text',
+                               'field_rich_text':''}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing field_rich_text
-        status, url = sb.go('0/tab_edit_cl_validate_edit_dialog', 'parttype=es&slotname=feature&esname=cs_rich_text')
-        self.assertEquals(400, status)
+        status = sb.open(add_url, 
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'esname':'cs_rich_text'}
+                         )
+        self.assertEquals(500, status)
+
+    def test_parts_save(self):
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = True
+
+        add_url = self.pageurl + '0/edit/addparttoslot'
+        save_url = self.pageurl + '0/edit/savepart'
+        rich_copy = '<p>hi</p>'
         
-        #Second, test adding it
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=feature&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
+        #actually add a part
+        status = sb.open(add_url,
+                         form={
+                             'parttype':'es',
+                             'slotname':'feature',
+                             'esname':'cs_rich_text',
+                             'field_rich_text':rich_copy}
+                         )
         self.assertEquals(200, status)
         
         #We need to grab the partkey for later use
-        p = re.compile('<div class="part" id="cs_rich_text_(-?\d+)">')
-        s = p.search(sb.browser.contents)
-        self.partkey = s.group(1)
-                
-        #Test invalid esname
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=feature&esname=cs_rich_tex&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
+        divid = sb.html.xpath('//div[@class="part"]')[0].get('id')
+        self.partkey = divid[divid.rfind('_')+1:]
         
-        #Test missing slotname
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
-        
-        #Test missing slotname
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
-        
-        #Test missing esname
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=feature&esname=&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
-        
-        #Test missing esname
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=feature&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
-        
-        #Test missing field_rich_text
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=feature&esname=cs_rich_text&field_rich_text=')
-        self.assertEquals(400, status)
-        
-        #Test missing field_rich_text
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=feature&esname=cs_rich_text')
-        self.assertEquals(400, status)
-
         #Third, edit it
-        status, url = sb.go('0/@@tab_edit_cl_save_part', 'parttype=es&slotname=feature&partkey=' + self.partkey + '&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
+        status = sb.open(save_url, 
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'partkey':self.partkey,
+                               'esname':'cs_rich_text',
+                               'field_rich_text':rich_copy}
+                         )
         self.assertEquals(200, status)
-        self.assertEquals('<p>hi</p>', sb.browser.contents)
+        self.assertEquals(rich_copy, sb.contents)
         
         #Test invalid partkey
-        status, url = sb.go('0/@@tab_edit_cl_save_part', 'parttype=es&slotname=feature&partkey=0123456789&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
+        status = sb.open(save_url, 
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'partkey':'0123456789',
+                               'esname':'cs_rich_text',
+                               'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing partkey
-        status, url = sb.go('0/@@tab_edit_cl_save_part', 'parttype=es&slotname=feature&partkey=&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
+        status = sb.open(save_url, 
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'partkey':'',
+                               'esname':'cs_rich_text',
+                               'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
         #Test missing partkey
 
-        status, url = sb.go('0/@@tab_edit_cl_save_part', 'parttype=es&slotname=feature&esname=cs_rich_text&field_rich_text=%3Cp%3Ehi%3C%2Fp%3E')
-        self.assertEquals(400, status)
+        status = sb.open(save_url, 
+                         form={'parttype':'es',
+                               'slotname':'feature',
+                               'esname':'cs_rich_text',
+                               'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(500, status)
 
+    def test_parts_move(self):
+        #add a part, then move it
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = True
+
+        add_url = self.pageurl + '0/edit/addparttoslot'
+        save_url = self.pageurl + '0/edit/savepart'
+        move_url = self.pageurl + '0/edit/moveparttoslot'
+        rich_copy = '<p>hi</p>'
         
-        #Fourth, move it
+        #first switch the template to two-column template
+        status = sb.open(self.pageurl + '0/edit/switchlayouttemplate', 
+                query={'newTemplate':self.twotem})
+        self.assertEquals(200, status)
 
-        #Test invalid partkey                                                                                                                                                   
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'partkey=123456&slotname=panel')
-        self.assertEquals(400, status)
+        #actually add a part
+        status = sb.open(add_url,
+                         form={
+                             'parttype':'es',
+                             'slotname':'feature',
+                             'esname':'cs_rich_text',
+                             'field_rich_text':rich_copy}
+                         )
+        self.assertEquals(200, status)
+        
+        #We need to grab the partkey for later use
+        divid = sb.html.xpath('//div[@class="part"]')[0].get('id')
+        self.partkey = divid[divid.rfind('_')+1:]
+
+        #Test invalid partkey
+        status = sb.open(move_url, 
+                         form={'partkey':'123456',
+                               'slotname':'panel'}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing partkey
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'slotname=panel&partkey=')
-        self.assertEquals(400, status)
+        status = sb.open(move_url,
+                         form={'slotname':'panel',
+                               'partkey':''}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing partkey
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'slotname=panel')
-        self.assertEquals(400, status)
-        
-        # Testing for invalid slotname doesn't work because the slot is created if the name doesn't exist
-        # status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'partkey=' + self.partkey + '&slotname=fake')
-        # self.assertEquals(400, status)
+        status = sb.open(move_url,
+                         form={'slotname':'panel'}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing slotname
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'slotname=&partkey=' + self.partkey)
-        self.assertEquals(400, status)
+        status = sb.open(move_url,
+                         form={'slotname':'',
+                               'partkey':self.partkey}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing slotname
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'partkey=' + self.partkey)
-        self.assertEquals(400, status)
+        status = sb.open(move_url,
+                         form={'partkey':self.partkey}
+                         )
+        self.assertEquals(500, status)
         
         #Actually move it
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'partkey=' + self.partkey + '&slotname=panel')
+        status = sb.open(move_url,
+                         form={'partkey': self.partkey,
+                               'slotname':'panel'}
+                         )
         self.assertEquals(200, status)
-        self.assertEquals('OK', sb.browser.contents)
+        self.assertEquals('OK', sb.contents)
 
+    def test_part_delete(self):
+        #add a part, delete it
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = True
+
+        add_url = self.pageurl + '0/edit/addparttoslot'
+        save_url = self.pageurl + '0/edit/savepart'
+        move_url = self.pageurl + '0/edit/moveparttoslot'
+        remove_url = self.pageurl + '0/edit/removepart'
+        rich_copy = '<p>hi</p>'
 
         #Next, delete it
         
         #Test invalid partkey
-        status, url = sb.go('0/@@tab_edit_cl_remove_part', 'partkey=0123456789')
-        self.assertEquals(400, status)
+        status = sb.open(remove_url, 
+                         form={'partkey':'0123456789'}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing partkey
-        status, url = sb.go('0/@@tab_edit_cl_remove_part', 'partkey=')
-        self.assertEquals(400, status)
+        status = sb.open(remove_url, 
+                         form={'partkey':''}
+                         )
+        self.assertEquals(500, status)
         
         #Test missing partkey
-        status, url = sb.go('0/@@tab_edit_cl_remove_part', '')
-        self.assertEquals(400, status)
+        status = sb.open(remove_url)
+        self.assertEquals(500, status)
 
-        #Actually delete it
-        status, url = sb.go('0/@@tab_edit_cl_remove_part', 'partkey=' + self.partkey)
-        self.assertEquals(200, status)
-        self.assertEquals('OK', sb.browser.contents)
-
-        #Finally, test with more than one part
-
-        #part one
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=panel&esname=cs_rich_text&field_rich_text=%3Cp%3Epart1%3C%2Fp%3E')
+        #Actually delete it (add it first)
+        status = sb.open(add_url,
+                         form={
+                             'parttype':'es',
+                             'slotname':'feature',
+                             'esname':'cs_rich_text',
+                             'field_rich_text':rich_copy}
+                         )
         self.assertEquals(200, status)
         
         #Grab the key
-        p = re.compile('<div class="part" id="cs_rich_text_(-?\d+)">')
-        s = p.search(sb.browser.contents)
-        self.partkeyone = s.group(1)
+        #We need to grab the partkey for later use
+        divid = sb.html.xpath('//div[@class="part"]')[0].get('id')
+        self.partkey = int(divid[divid.rfind('_')+1:])
+        
+        status = sb.open(remove_url, 
+                         form={'partkey': self.partkey}
+                         )
+        self.assertEquals(200, status)
+        self.assertEquals('OK', sb.contents)
 
-        #part two
-        status, url = sb.go('0/@@tab_edit_cl_add_es_to_slot', 'parttype=es&slotname=feature&esname=cs_rich_text&field_rich_text=%3Cp%3Epart2%3C%2Fp%3E')
+    def test_part_move_multiple(self):
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = True
+
+        add_url = self.pageurl + '0/edit/addparttoslot'
+        save_url = self.pageurl + '0/edit/savepart'
+        move_url = self.pageurl + '0/edit/moveparttoslot'
+        remove_url = self.pageurl + '0/edit/removepart'
+        rich_copy = '<p>hi</p>'
+        editable = self.page.get_editable()
+
+        #Finally, test with more than one part
+
+        #part one (in feature slot)
+        status = sb.open(add_url,
+                         form={
+                             'parttype':'es',
+                             'slotname':'feature',
+                             'esname':'cs_rich_text',
+                             'field_rich_text':rich_copy}
+                         )
         self.assertEquals(200, status)
         
-        #Grab this key as well  
-        p = re.compile('<div class="part" id="cs_rich_text_(-?\d+)">')
-        s = p.search(sb.browser.contents)
-        self.partkeytwo = s.group(1)
-        #Move part one to the same slot as part two
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'partkey=' + self.partkeyone + '&slotname=feature')
-        self.assertEquals(200, status)
-        self.assertEquals('OK', sb.browser.contents)
+        #Grab the key
+        #We need to grab the partkey for later use
+        divid = sb.html.xpath('//div[@class="part"]')[0].get('id')
+        self.partkey1 = int(divid[divid.rfind('_')+1:])
 
-        #Move it back
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'partkey=' + self.partkeyone + '&slotname=panel')
+        #part two (in panel slot)
+        status = sb.open(add_url,
+                         form={
+                             'parttype':'es',
+                             'slotname':'panel',
+                             'esname':'cs_rich_text',
+                             'field_rich_text':rich_copy}
+                         )
         self.assertEquals(200, status)
-        self.assertEquals('OK', sb.browser.contents)
+        
+        #Grab the key
+        #We need to grab the partkey for later use
+        divid = sb.html.xpath('//div[@class="part"]')[0].get('id')
+        self.partkey2 = int(divid[divid.rfind('_')+1:])
 
-        #Move part two to the same one
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'partkey=' + self.partkeytwo + '&slotname=panel')
+        #Move part one to the same slot as part two (i.e. panel)
+        status = sb.open(move_url, 
+                         form={'partkey': self.partkey1,
+                                    'slotname':'panel'}
+                              )
         self.assertEquals(200, status)
-        self.assertEquals('OK', sb.browser.contents)
-
-        #Move part one to the other slot 
-        status, url = sb.go('0/tab_edit_cl_move_part_to_slot', 'partkey=' + self.partkeyone + '&slotname=feature')
-        self.assertEquals(200, status)
-        self.assertEquals('OK', sb.browser.contents)
-
-        #Switch to other template
-        status, url = sb.go('0/tab_edit_cl_switch_template', 'newTemplate=silva.contentlayouttemplates.onecolumn')
-        self.assertEquals(200, status)
-        self.assertEquals('OK', sb.browser.contents)
+        self.assertEquals('OK', sb.contents)
+        #verify order
+        parts = [ p.get_key() for p in editable.get_parts_for_slot('panel') ]
+        self.assertEquals(parts, [self.partkey2, self.partkey1])
         
 
-    def atest_addSilvaPage(self):
-        sb = SilvaBrowser()
-        status, url = sb.login('editor', 'secret', sb.smi_url())
-        addables = sb.get_addables_list()
-        self.failUnless('Silva Page' in addables)
-        sb.select_addable('Silva Page')
-        # create silva document                                                                                              
-        status, url = sb.click_button_labeled('new...')
-        self.failUnless(sb.get_addform_title() == 'create Silva Page')
-        # fill in form fields                                                                                                
-        sb.set_id_field('test_content')
-        sb.set_title_field('test content')
-        status, url = sb.click_button_labeled('save')
-        self.failUnless(sb.get_status_feedback().startswith('Added Silva Page'))
+        #Move part one back to feature
+        status = sb.open(move_url,
+                         form={'partkey':self.partkey1,
+                               'slotname':'feature'}
+                         )
+        self.assertEquals(200, status)
+        self.assertEquals('OK', sb.contents)
+        #verify order
+        ps = [ p.get_key() for p in editable.get_parts_for_slot('feature') ]
+        self.assertEquals(ps, [self.partkey1])
 
+        #Move part two to feature, put it before part1
+        status = sb.open(move_url, 
+                         form={'partkey':self.partkey2,
+                               'slotname':'feature',
+                               'beforepartkey':self.partkey1}
+                         )
+        self.assertEquals(200, status)
+        self.assertEquals('OK', sb.contents)
+        #verify order
+        ps = [ p.get_key() for p in editable.get_parts_for_slot('feature') ]
+        self.assertEquals(ps, [self.partkey2, self.partkey1])
 
-    def atest_addSilvaPageAsset(self): 
-        sb = SilvaBrowser()
-        status,url = sb.login('editor', 'secret', sb.smi_url())
-        addables = sb.get_addables_list()
-        self.failUnless('Silva Page Asset' in addables)
-        sb.select_addable('Silva Page Asset')
-        # create silva document
-        status, url = sb.click_button_labeled('new...')
-        self.failUnless(sb.get_addform_title() == 'create Silva Page Asset')
-        # fill in form fields
-        sb.set_id_field('test_content')
-        sb.set_title_field('test content')
-        status, url = sb.click_button_labeled('save')
-        self.failUnless(sb.get_status_feedback().startswith('Added Silva Page Asset'))
+    def test_addSilvaPage(self):
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = False
+        sb.open('/root/edit/tab_edit')
+        
+        #ensure silva page is in the add list
+        af = sb.get_form(name="md.container")
+        content = af.get_control('md.container.field.content')
+        self.failUnless('Silva Page' in content.options)
 
-    def atest_pageAssetAjaxCalls(self):
-        sb = SilvaBrowser()
-        sb.login('editor', 'secret', sb.smi_url())
-        sb.make_content('Silva Page Asset', id = 'test_page', title = 'Test')
-        status, url = sb.go('../test_page/edit')
+        #set value for add form, submit
+        content.value = 'Silva Page'
+        status = af.submit('md.container.action.new')
+        self.assertEquals(status, 200)
+        self.assertEquals(sb.location, '/root/edit/+/Silva Page')
 
-        #Add an ES to the page
+        #specify values for new content, submit
+        addform = sb.get_form('addform')
+        addform.controls['addform.field.title'].value = 'page 2'
+        addform.controls['addform.field.id'].value = 'page2'
+        addform.controls['addform.field.template'].value = \
+               'silva.core.contentlayout.templates.OneColumn'
+        status = addform.submit('addform.action.save_edit')
+        self.assertEquals(status, 200)
+        self.assertEquals(sb.location, '/root/page2/edit')
+        
+    def test_addSilvaPageAsset(self): 
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = False
+        sb.open('/root/edit/tab_edit')
 
-        #Bad extsource name
-        status, url = sb.go('http://nohost/root/test_page/edit/', 'extsource=cs_rch_text&change-es%3Amethod=change+external+source')
-        self.assertEquals(400, status)
+        #ensure silva page is in the add list
+        af = sb.get_form(name="md.container")
+        content = af.get_control('md.container.field.content')
+        self.failUnless('Silva Page Asset' in content.options)
+
+        #set value for add form, submit
+        content.value = 'Silva Page Asset'
+        status = af.submit('md.container.action.new')
+        self.assertEquals(status, 200)
+        self.assertEquals(sb.location, '/root/edit/+/Silva Page Asset')
+
+        addform = sb.get_form('addform')
+        addform.controls['addform.field.title'].value = 'pa2'
+        addform.controls['addform.field.id'].value = 'pa2'
+        addform.controls['addform.field.part_name'].value = 'cs_rich_text'
+        status = addform.submit('addform.action.save_edit')
+        self.assertEquals(status, 200)
+        self.assertEquals(sb.location, '/root/pa2/edit')
+        
+    def test_pageAssetEditActions(self):
+        sb = self.layer.get_browser(smi_settings)
+        sb.login('editor')
+        sb.options.handle_errors = True
+        url = '/root/pageasset/edit/'
         
         #Empty extsource name
-        status, url = sb.go('http://nohost/root/test_page/edit/', 'extsource=&change-es%3Amethod=change+external+source')
-        self.failUnless(sb.get_alert_feedback().startswith('An external source must be selected'))
+        status = sb.open(url,
+                        method='POST',
+                        form={'extsource':'',
+                              'change-es:method':'change externalsource'})
+        sb.inspect.add('alert', "//div[@class='fixed-alert']")
+        self.assertEquals(sb.inspect.alert, 
+                          ['An external source must be selected.'])
 
-        #No extsource name
-        status, url = sb.go('http://nohost/root/test_page/edit/', 'change-es%3Amethod=change+external+source')
-        self.assertEquals(400, status)
-        
         #Now actually add it
-        status, url = sb.go('http://nohost/root/test_page/edit/', 'extsource=cs_rich_text&change-es%3Amethod=change+external+source')
-        self.assertEquals(200, status)
+        status = sb.open(url, 
+                         method='POST',
+                         form={'extsource':'cs_rich_text',
+                               'change-es:method':'change external source'}
+                         )
+        control = sb.get_form('silvaObjects').get_control('esname')
+        self.assertEquals(control.value, 'cs_rich_text')
 
-        #Change External Source
-        status, url = sb.go('http://nohost/root/test_page/edit/', 'extsource=cs_rich_text&change-es%3Amethod=change+external+source&parttype=es&slotname=a&partkey=12345&esname=cs_rich_text&field_rich_text=')
-        self.assertEquals(200, status)
-    
-        #The parameters that were not tested do not impact the call
-        
+
 import unittest
 def test_suite():
     suite = unittest.TestSuite()
