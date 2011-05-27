@@ -16,9 +16,9 @@
 <metal:use-macro use-macro="here/macro_tab_edit/macros/editor">
 
 <metal:fillscript fill-slot="script">
-<!--<script type="text/javascript" 
-    tal:attributes="src here/reference.js/absolute_url"></script>-->
-<!--<script type="text/javascript" tal:attributes="src context/globals/tinymce/jscripts/tiny_mce/tiny_mce.js/absolute_url"></script>-->
+<script type="text/javascript" 
+    tal:attributes="src string:${root_url}/++resource++Products.Silva.browser.scripts/reference.js"></script>
+<script type="text/javascript" tal:attributes="src context/globals/tinymce/jscripts/tiny_mce/tiny_mce.js/absolute_url"></script>
 </metal:fillscript>
 
 <metal:fillcss fill-slot="editor_css">
