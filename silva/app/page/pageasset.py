@@ -164,7 +164,7 @@ class PartEditViewHelper(grok.View):
         """Return an ordered list of the External Sources within the
            current context.  Each item is a three-tuple of 
            [ priority, title, name, source ]"""
-        sources = [ [s[1].priority(), s[1].title.encode('utf-8'),s[0], s[1]] \
+        sources = [ [s[1].priority(), s[1].get_title().encode('utf-8'),s[0], s[1]] \
                     for s in ExternalSource.availableSources(aq_inner(self.context))
                     if s[1].id != 'cs_page_asset' ]
         sources.sort()
@@ -224,7 +224,7 @@ def externalsources_source(context):
     sources = []
     for es in ExternalSource.availableSources(aq_inner(context)):
         if es[1].id != 'cs_page_asset':
-            sources.append( [es[1].priority(), es[1].title.encode('utf-8'), 
+            sources.append( [es[1].priority(), es[1].get_title().encode('utf-8'), 
                              unicode(es[1].id) ] )
     sources.sort()
     
