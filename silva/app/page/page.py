@@ -14,6 +14,7 @@ from silva.translations import translate as _
 from silva.core.interfaces import IContainerPolicy
 from silva.core import conf as silvaconf
 from zeam.form import silva as silvaforms
+from zeam.form.base.markers import NO_VALUE, HIDDEN
 
 from silva.core.contentlayout.contentlayout import ContentLayout
 from silva.core.contentlayout.interfaces.schema import ITemplateSchema
@@ -48,6 +49,8 @@ InitializeClass(Page)
 class IPageAddSchema(silvaconf.interfaces.ITitledContent, ITemplateSchema):
     """Pages have rich titled content and also the content layout template"""
 
+from silva.core.contentlayout.interfaces import IContentLayoutService
+from zope.component import getUtility
 class PageAddView(silvaforms.SMIAddForm):
     """Add form for a page asset"""
     
@@ -55,6 +58,13 @@ class PageAddView(silvaforms.SMIAddForm):
     grok.name(u'Silva Page')
     
     fields = silvaforms.Fields(IPageAddSchema)
+    
+    def _add(self, parent, data):
+        """Override SMIAddForm to also set the template"""
+        content = super(PageAddView, self)._add(parent, data)
+        if data['template'] is not NO_VALUE:
+            content.get_editable().switch_template(data['template'])
+        return content
     
     def update(self):
         #XXXaaltepet here we hide the template fields if not appropriate

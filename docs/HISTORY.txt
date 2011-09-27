@@ -1,7 +1,13 @@
-Changelog
-=========
+silva.app.page Changelog
+========================
+
+1.0.1 (unreleased)
+------------------
+
+* adjust the add form so the layout template is set when
+  a page is created
 
 1.0 (2011-07-07)
-----------------------
+----------------
 
 - Initial release
