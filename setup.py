@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0.1'
+version = '2.0'
 
 setup(name='silva.app.page',
       version=version,
@@ -27,10 +27,5 @@ setup(name='silva.app.page',
           'silva.core.conf',
           'silva.core.interfaces',
           'silva.core.contentlayout',
-	  'Products.SilvaExternalSources',
-      ],
-      entry_points="""
-      [zodbupdate]
-      renames = silva.app.page:CLASS_CHANGES
-      """
+      ]
       )
