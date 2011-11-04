@@ -1,84 +1,98 @@
-#zope
+
 from five import grok
-from zope.component import getUtility
+from zope.traversing.browser import absoluteURL
 
 from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
-from Persistence import Persistent
 
-#silva
-from Products.Silva import SilvaPermissions
-from Products.Silva.VersionedContent import CatalogedVersionedContent
-from Products.Silva.Version import CatalogedVersion
-from silva.translations import translate as _
-from silva.core.interfaces import IContainerPolicy
-from silva.core import conf as silvaconf
-from zeam.form import silva as silvaforms
-from zeam.form.base.markers import NO_VALUE, HIDDEN
+from Products.Silva.VersionedContent import VersionedContent
+from Products.Silva.Version import Version
 
-from silva.core.contentlayout.contentlayout import ContentLayout
-from silva.core.contentlayout.interfaces.schema import ITemplateSchema
 from silva.app.page.interfaces import IPage, IPageVersion
+from silva.core import conf as silvaconf
+from silva.core.contentlayout.interfaces import ITitledPage
+from zeam.form import silva as silvaforms
+from silva.ui.rest.base import Screen, PageREST
+from silva.core.smi.content import IEditScreen
+from silva.core.views import views as silvaviews
+from silva.translations import translate as _
+from silva.ui.menu import MenuItem
+from silva.core.smi.content import ContentEditMenu
 
-class PageVersion(CatalogedVersion, ContentLayout):
-    """ A version of a Silva Page (i.e. a web page) """
-    
+
+class PageVersion(Version):
+    """A version of a Silva Page (i.e. a web page)
+    """
     security = ClassSecurityInfo()
-    
     meta_type = 'Silva Page Version'
     grok.implements(IPageVersion)
-    
-    def __init__(self, id):
-        super(PageVersion, self).__init__(id)
-        ContentLayout.__init__(self, id)
+
+
 InitializeClass(PageVersion)
 
-class Page(CatalogedVersionedContent):
+
+class Page(VersionedContent):
     """ A Silva Page represents a web page, supporting advanced
         inline editing and content layout.
     """
-
     security = ClassSecurityInfo()
     grok.implements(IPage)
     meta_type = 'Silva Page'
     silvaconf.icon('page.png')
     silvaconf.version_class(PageVersion)
     silvaconf.priority(-10)
+
+
 InitializeClass(Page)
 
-class IPageAddSchema(silvaconf.interfaces.ITitledContent, ITemplateSchema):
-    """Pages have rich titled content and also the content layout template"""
 
-from silva.core.contentlayout.interfaces import IContentLayoutService
-from zope.component import getUtility
-class PageAddView(silvaforms.SMIAddForm):
+
+class IPageSchema(ITitledPage):
+    pass
+
+
+
+class PageAddForm(silvaforms.SMIAddForm):
     """Add form for a page asset"""
-    
+
     grok.context(IPage)
     grok.name(u'Silva Page')
-    
-    fields = silvaforms.Fields(IPageAddSchema)
-    
-    def _add(self, parent, data):
-        """Override SMIAddForm to also set the template"""
-        content = super(PageAddView, self)._add(parent, data)
-        if data['template'] is not NO_VALUE:
-            content.get_editable().switch_template(data['template'])
-        return content
-    
-    def update(self):
-        #XXXaaltepet here we hide the template fields if not appropriate
-        # for this content type
-        pass
 
-class PageContainerPolicy(Persistent):
-    """A ContainerPolicy for Silva Pages"""
-    
-    grok.implements(IContainerPolicy)
-    
-    def createDefaultDocument(self, container, title):
-        """create a Silva Page as the default document in
-           the container
-        """
-        container.manage_addProduct['silva.app.page'].manage_addPage('index', 
-                                                                     title)
+    fields = silvaforms.Fields(IPageSchema)
+
+
+class PageEdit(PageREST):
+    grok.adapts(Screen, IPage)
+    grok.name('content')
+    grok.implements(IEditScreen)
+    grok.require('silva.ReadSilvaContent')
+
+    def payload(self):
+        url = absoluteURL(self.context, self.request) + '/edit'
+        return {"ifaces": ["content-layout"],
+                "html_url": url}
+
+
+class PageDetailsForm(silvaforms.SMIEditForm):
+    grok.context(IPage)
+    grok.name('details')
+
+    label = _(u"Page details")
+    fields = silvaforms.Fields(IPageSchema).omit('id')
+
+
+class PageDetailsMenu(MenuItem):
+    grok.adapts(ContentEditMenu, IPage)
+    grok.require('silva.ChangeSilvaContent')
+    grok.order(15)
+
+    name = _('Details')
+    screen = PageDetailsForm
+
+
+class PageView(silvaviews.View):
+    grok.context(IPage)
+
+    def render(self):
+        template = self.content.template(self.content, self.request)
+        return template()

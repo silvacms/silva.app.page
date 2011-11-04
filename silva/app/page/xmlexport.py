@@ -1,11 +1,11 @@
 from five import grok
 from zope.interface import Interface
 
-from Products.Silva.silvaxml.xmlimport import NS_URI
+from Products.Silva.silvaxml.xmlimport import NS_SILVA_URI
 from Products.Silva.silvaxml.xmlexport import (VersionedContentProducer,
                                                SilvaBaseProducer,
                                                theXMLExporter)
-from silva.app.page.pageasset import PageAsset, PageAssetVersion
+#from silva.app.page.pageasset import PageAsset, PageAssetVersion
 from silva.app.page.page import Page, PageVersion
 
 NS_CL = 'http://infrae.com/ns/silva-contentlayout'
@@ -25,7 +25,7 @@ class PageProducer(VersionedContentProducer):
 
 class ContentLayoutProducerMixin(object):
     """Mixin to export content layout xml"""
-    
+
     def content_layout_xml(self):
         self.startElementNS(NS_CL, 'layout')
         self.handler.characters(self.context.get_layout_name())
@@ -53,42 +53,42 @@ class PageVersionProducer(ContentLayoutProducerMixin, SilvaBaseProducer):
     grok.adapts(PageVersion, Interface)
 
     def sax(self):
-        self.startElementNS(NS_URI, 'content', {'version_id': self.context.id})
+        self.startElementNS(NS_SILVA_URI, 'content', {'version_id': self.context.id})
         self.metadata()
         self.content_layout_xml()
-        self.endElementNS(NS_URI, 'content')
+        self.endElementNS(NS_SILVA_URI, 'content')
 
 
-class PageAssetProducer(VersionedContentProducer):
-    """Export a Silva Page Asset object to XML."""
-    grok.adapts(PageAsset, Interface)
+# class PageAssetProducer(VersionedContentProducer):
+#     """Export a Silva Page Asset object to XML."""
+#     grok.adapts(PageAsset, Interface)
 
-    def sax(self):
-        self.startElementNS(NS_CL,
-                            'pageasset',
-                            {'id': self.context.id})
-        self.workflow()
-        self.versions()
-        self.endElementNS(NS_CL, 'pageasset')
+#     def sax(self):
+#         self.startElementNS(NS_CL,
+#                             'pageasset',
+#                             {'id': self.context.id})
+#         self.workflow()
+#         self.versions()
+#         self.endElementNS(NS_CL, 'pageasset')
 
 
-class PageAssetVersionProducer(SilvaBaseProducer):
-    """Export a version of a Silva Page Asset object to XML."""
-    grok.adapts(PageAssetVersion, Interface)
+# class PageAssetVersionProducer(SilvaBaseProducer):
+#     """Export a version of a Silva Page Asset object to XML."""
+#     grok.adapts(PageAssetVersion, Interface)
 
-    def sax(self):
-        self.startElementNS(NS_CL, 'content', {'version_id': self.context.id})
-        self.metadata()
-        self.startElementNS(NS_CL, 'name')
-        self.handler.characters(self.context.get_part_name())
-        self.endElementNS(NS_CL, 'name')
-        self.startElementNS(NS_CL, 'config')
-        cs = self.context._get_source(self.context.get_part_name())
-        for k,v in self.context.get_config().items():
-            self.startElementNS(NS_CL, k, {'type': getattr(cs.parameters, k).meta_type})
-            self.handler.characters(unicode(v))
-            self.endElementNS(NS_CL, k)
-        self.endElementNS(NS_CL, 'config')
-        self.endElementNS(NS_CL, 'content')
-        
+#     def sax(self):
+#         self.startElementNS(NS_CL, 'content', {'version_id': self.context.id})
+#         self.metadata()
+#         self.startElementNS(NS_CL, 'name')
+#         self.handler.characters(self.context.get_part_name())
+#         self.endElementNS(NS_CL, 'name')
+#         self.startElementNS(NS_CL, 'config')
+#         cs = self.context._get_source(self.context.get_part_name())
+#         for k,v in self.context.get_config().items():
+#             self.startElementNS(NS_CL, k, {'type': getattr(cs.parameters, k).meta_type})
+#             self.handler.characters(unicode(v))
+#             self.endElementNS(NS_CL, k)
+#         self.endElementNS(NS_CL, 'config')
+#         self.endElementNS(NS_CL, 'content')
+
 
