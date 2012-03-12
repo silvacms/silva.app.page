@@ -1,8 +1,10 @@
 
 from five import grok
+from zope.component import getMultiAdapter
 from zope.traversing.browser import absoluteURL
 
 from AccessControl import ClassSecurityInfo
+from AccessControl.security import checkPermission
 from App.class_init import InitializeClass
 
 from Products.Silva.VersionedContent import VersionedContent
@@ -11,13 +13,14 @@ from Products.Silva.Version import Version
 from silva.app.page.interfaces import IPage, IPageVersion
 from silva.core import conf as silvaconf
 from silva.core.contentlayout.interfaces import ITitledPage
-from zeam.form import silva as silvaforms
-from silva.ui.rest.base import Screen, PageREST
+from silva.core.smi.content import ContentEditMenu
 from silva.core.smi.content import IEditScreen
 from silva.core.views import views as silvaviews
+from silva.core.views.interfaces import ISilvaURL
 from silva.translations import translate as _
 from silva.ui.menu import MenuItem
-from silva.core.smi.content import ContentEditMenu
+from silva.ui.rest.base import Screen, PageREST
+from zeam.form import silva as silvaforms
 
 
 class PageVersion(Version):
@@ -68,8 +71,15 @@ class PageEdit(PageREST):
     grok.require('silva.ReadSilvaContent')
 
     def payload(self):
-        url = absoluteURL(self.context, self.request) + '/edit'
-        return {"ifaces": ["content-layout"],
+        if checkPermission('silva.ChangeSilvaContent', self.context):
+            version = self.context.get_editable()
+            if version is not None:
+                url = absoluteURL(self.context, self.request) + '/edit'
+                return {"ifaces": ["content-layout"],
+                        "html_url": url}
+
+        url = getMultiAdapter((self.context, self.request), ISilvaURL).preview()
+        return {"ifaces": ["preview"],
                 "html_url": url}
 
 
