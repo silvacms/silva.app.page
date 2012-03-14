@@ -74,9 +74,8 @@ class PageEdit(PageREST):
         if checkPermission('silva.ChangeSilvaContent', self.context):
             version = self.context.get_editable()
             if version is not None:
-                url = absoluteURL(self.context, self.request) + '/edit'
                 return {"ifaces": ["content-layout"],
-                        "html_url": url}
+                        "path": version.getId()}
 
         url = getMultiAdapter((self.context, self.request), ISilvaURL).preview()
         return {"ifaces": ["preview"],
