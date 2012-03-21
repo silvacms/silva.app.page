@@ -8,7 +8,10 @@ from silva.core.contentlayout.interfaces import IContentLayoutService
 
 silvaconf.extension_name("silva.app.page")
 silvaconf.extension_title(u"Silva Page")
-silvaconf.extension_depends(["Silva", "silva.core.contentlayout"])
+silvaconf.extension_depends(
+    ["Silva",
+     "silva.core.contentlayout",
+     "silva.app.news"])
 
 
 class PageInstaller(DefaultInstaller):

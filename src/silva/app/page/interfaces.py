@@ -4,14 +4,25 @@ from silva.core.contentlayout.interfaces import IPage as IBasicPage
 from silva.core.contentlayout.interfaces import IPageAware
 
 
-class IPage(IVersionedContent, IPageAware):
-    """ A web page.
+class IPageContent(IVersionedContent, IPageAware):
+    """ Basic page feature
 
-    This content supports advanced inline editing and content layout.
+    This content supports advanced inline editing and content
+    layout. Use this class to extend a page.
     """
 
 
-class IPageVersion(IVersion, IBasicPage):
-   """A version of a Silva Page (i.e. a web page)
+class IPage(IPageContent):
+    """A page
+    """
+
+
+class IPageContentVersion(IVersion, IBasicPage):
+   """Basic page version feature
    """
+
+
+class IPageVersion(IPageContentVersion):
+    """A page version
+    """
 

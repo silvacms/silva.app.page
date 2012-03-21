@@ -9,7 +9,6 @@ from App.class_init import InitializeClass
 from Products.Silva.VersionedContent import VersionedContent
 from Products.Silva.Version import Version
 
-from silva.app.page.interfaces import IPage, IPageVersion
 from silva.core import conf as silvaconf
 from silva.core.contentlayout.interfaces import ITitledPage
 from silva.core.smi.content import ContentEditMenu
@@ -20,6 +19,8 @@ from silva.translations import translate as _
 from silva.ui.menu import MenuItem
 from silva.ui.rest.base import Screen, PageREST
 from zeam.form import silva as silvaforms
+
+from .interfaces import IPage, IPageVersion, IPageContent
 
 
 class PageVersion(Version):
@@ -48,23 +49,17 @@ class Page(VersionedContent):
 InitializeClass(Page)
 
 
-
-class IPageSchema(ITitledPage):
-    pass
-
-
-
 class PageAddForm(silvaforms.SMIAddForm):
     """Add form for a page asset"""
 
     grok.context(IPage)
     grok.name(u'Silva Page')
 
-    fields = silvaforms.Fields(IPageSchema)
+    fields = silvaforms.Fields(ITitledPage)
 
 
 class PageEdit(PageREST):
-    grok.adapts(Screen, IPage)
+    grok.adapts(Screen, IPageContent)
     grok.name('content')
     grok.implements(IEditScreen)
     grok.require('silva.ReadSilvaContent')
@@ -86,7 +81,7 @@ class PageDetailsForm(silvaforms.SMIEditForm):
     grok.name('details')
 
     label = _(u"Page details")
-    fields = silvaforms.Fields(IPageSchema).omit('id')
+    fields = silvaforms.Fields(ITitledPage).omit('id')
 
 
 class PageDetailsMenu(MenuItem):
@@ -99,7 +94,7 @@ class PageDetailsMenu(MenuItem):
 
 
 class PageView(silvaviews.View):
-    grok.context(IPage)
+    grok.context(IPageContent)
 
     def render(self):
         template = self.content.template(self.content, self.request)
