@@ -2,10 +2,9 @@ from DateTime import DateTime
 
 from Products.Silva.silvaxml.xmlimport import SilvaBaseHandler
 from silva.core import conf as silvaconf
-#from silva.app.page.pageasset import PageAsset, PageAssetVersion
 #from silva.core.contentlayout.interfaces import IPartFactory
 
-from silva.app.page.xmlexport import NS_CL
+from silva.app.page.silvaxml.xmlexport import NS_CL
 
 silvaconf.namespace(NS_CL)
 
@@ -38,7 +37,7 @@ class PageContentHandler(SilvaBaseHandler):
         return {
             (NS_CL, 'part'): ContentLayoutPartHandler
             }
-    
+
     def characters(self, chars):
         self._chars = chars
 
@@ -87,7 +86,7 @@ class ContentLayoutPartHandler(SilvaBaseHandler):
 class ConfigElementHandler(SilvaBaseHandler):
     def getOverrides(self):
         return {}
-    
+
     def characters(self, chars):
         self._chars = chars
 
@@ -110,56 +109,4 @@ class ConfigElementHandler(SilvaBaseHandler):
             else:
                 self._config[str(name[1])] = self._chars
 
-
-# class PageAssetHandler(SilvaBaseHandler):
-#     silvaconf.name('pageasset')
-    
-#     def getOverrides(self):
-#         return {
-#             (NS_CL, 'content'): PageAssetContentHandler
-#             }
-
-#     def startElementNS(self, name, qname, attrs):
-#         if name == (NS_CL, 'pageasset'):
-#             uid = self.generateOrReplaceId(attrs[(None, 'id')].encode('utf-8'))
-#             factory = self.parent().manage_addProduct['silva.app.page']
-#             factory.manage_addPageAsset(uid, '', no_default_version=True)
-#             last_author = attrs.get((None, 'last_author'),None)
-#             if last_author:
-#                 self.setAuthor(getattr(self.parent(), uid), self.parent(),
-#                                last_author)
-#             self.setResultId(uid)
-
-#     def endElementNS(self, name, qname):
-#         if name == (NS_CL, 'pageasset'):
-#             self.notifyImport()
-
-
-# class PageAssetContentHandler(SilvaBaseHandler):
-#     def getOverrides(self):
-#         return {
-#             (NS_CL, 'config'): ConfigElementHandler
-#             }
-    
-#     def characters(self, chars):
-#         self._chars = chars
-
-#     def startElementNS(self, name, qname, attrs):
-#         if name == (NS_CL, 'content'):
-#             if attrs.has_key((None, 'version_id')):
-#                 uid = attrs[(None, 'version_id')].encode('utf8')
-#                 factory = self.parent().manage_addProduct['silva.app.page']
-#                 factory.manage_addPageAssetVersion(uid, '')
-#                 last_author = attrs.get((None, 'last_author'),None)
-#                 if last_author:
-#                     self.setAuthor(getattr(self.parent(), uid), self.parent(),
-#                                    last_author)
-#                 self.setResultId(uid)
-
-#     def endElementNS(self, name, qname):
-#         if name == (NS_CL, 'content'):
-#             self.storeMetadata()
-#             self.storeWorkflow()
-#         elif name == (NS_CL, 'name'):
-#             self._result.set_part_name(self._chars)
 
