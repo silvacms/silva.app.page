@@ -1,7 +1,6 @@
 
 from five import grok
 from zope.component import getMultiAdapter
-from zope.traversing.browser import absoluteURL
 
 from AccessControl import ClassSecurityInfo
 from AccessControl.security import checkPermission
