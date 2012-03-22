@@ -5,19 +5,20 @@ from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
 
 from Products.Silva.VersionedContent import VersionedContent
-from Products.Silva.Version import Version
 
 from silva.core import conf as silvaconf
-from silva.app.news.NewsItem import NewsItemContent
+from silva.app.news.NewsItem import NewsItemContent, NewsItemFields
 from silva.app.news.NewsItem import NewsItemContentVersion
-from silva.app.news.NewsItem import INewsItemSchema
-from silva.core.contentlayout.interfaces import ITitledPage
+from silva.core.contentlayout.interfaces import PageFields
 from zeam.form import silva as silvaforms
 
+from ..page import PageContentVersion
 from .interfaces import INewsPage, INewsPageVersion
 
 
-class NewsPageVersion(NewsItemContentVersion, Version):
+class NewsPageVersion(NewsItemContentVersion, PageContentVersion):
+    """A news page version
+    """
     security = ClassSecurityInfo()
     meta_type = 'Silva News Page Version'
     grok.implements(INewsPageVersion)
@@ -26,9 +27,8 @@ class NewsPageVersion(NewsItemContentVersion, Version):
 InitializeClass(NewsPageVersion)
 
 
-class Page(NewsItemContent, VersionedContent):
-    """ A Silva Page represents a web page, supporting advanced
-        inline editing and content layout.
+class NewsPage(NewsItemContent, VersionedContent):
+    """A page that can behave like a news item
     """
     security = ClassSecurityInfo()
     grok.implements(INewsPage)
@@ -38,13 +38,13 @@ class Page(NewsItemContent, VersionedContent):
     silvaconf.priority(-9)
 
 
-InitializeClass(Page)
+InitializeClass(NewsPage)
 
 
-class PageAddForm(silvaforms.SMIAddForm):
+class NewsPageAddForm(silvaforms.SMIAddForm):
     """Add form for an agenda page.
     """
     grok.context(INewsPage)
     grok.name(u'Silva News Page')
 
-    fields = silvaforms.Fields(ITitledPage, INewsItemSchema)
+    fields = silvaforms.Fields(PageFields, NewsItemFields)

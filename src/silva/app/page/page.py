@@ -10,7 +10,7 @@ from Products.Silva.VersionedContent import VersionedContent
 from Products.Silva.Version import Version
 
 from silva.core import conf as silvaconf
-from silva.core.contentlayout.interfaces import ITitledPage
+from silva.core.contentlayout.interfaces import PageFields
 from silva.core.smi.content import ContentEditMenu
 from silva.core.smi.content import IEditScreen
 from silva.core.views import views as silvaviews
@@ -21,6 +21,15 @@ from silva.ui.rest.base import Screen, PageREST
 from zeam.form import silva as silvaforms
 
 from .interfaces import IPage, IPageVersion, IPageContent
+from .interfaces import IPageContentVersion
+
+
+class PageContentVersion(Version):
+    grok.baseclass()
+    grok.implements(IPageContentVersion)
+
+    def fulltext(self):
+        return [self.get_title()]
 
 
 class PageVersion(Version):
@@ -55,7 +64,7 @@ class PageAddForm(silvaforms.SMIAddForm):
     grok.context(IPage)
     grok.name(u'Silva Page')
 
-    fields = silvaforms.Fields(ITitledPage)
+    fields = PageFields
 
 
 class PageEdit(PageREST):
@@ -81,7 +90,7 @@ class PageDetailsForm(silvaforms.SMIEditForm):
     grok.name('details')
 
     label = _(u"Page details")
-    fields = silvaforms.Fields(ITitledPage).omit('id')
+    fields = PageFields.omit('id')
 
 
 class PageDetailsMenu(MenuItem):
