@@ -3,6 +3,10 @@ import os
 
 version = '2.0dev'
 
+tests_require = [
+    'Products.Silva [test]',
+    ]
+
 setup(name='silva.app.page',
       version=version,
       description="Silva Extention provides rich content layout object (Silva Page)",
@@ -28,5 +32,7 @@ setup(name='silva.app.page',
           'silva.core.conf',
           'silva.core.interfaces',
           'silva.core.contentlayout',
-      ]
+          ],
+      tests_require = tests_require,
+      extras_require = {'test': tests_require},
       )

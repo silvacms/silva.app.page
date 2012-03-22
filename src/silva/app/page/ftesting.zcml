@@ -1,18 +1,9 @@
 <configure
     xmlns="http://namespaces.zope.org/zope">
 
-<!-- copied from Products.Silva.ftesting.zcml -->
-
-
-  <!-- Silva do dependent on the WSGI for the tests -->
-  <include package="infrae.wsgi" />
-  <include package="Products.Silva" />
-  <include package="silva.export.opendocument" />
-  <include package="silva.core.contentlayout" />
+  <include package="Products.Silva" file="ftesting.zcml" />
+  <!-- We want to test news features too -->
+  <include package="silva.app.news" />
   <include package="silva.app.page" />
-
-  <!-- silva.core.views as a test ZCML file to register things for the
-       mocking request TestRequest -->
-  <include package="silva.core.views" file="ftesting.zcml" />
 
 </configure>
