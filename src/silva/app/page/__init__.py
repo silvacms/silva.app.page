@@ -17,6 +17,7 @@ silvaconf.extension_depends(
 class PageInstaller(DefaultInstaller):
     """Installer for Page and Page Asset extension.
     """
+    not_globally_addables = ['Silva News Page', 'Silva Agenda Page']
 
     def install_custom(self, root):
         if queryUtility(IContentLayoutService) is None:
