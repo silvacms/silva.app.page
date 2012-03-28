@@ -85,21 +85,21 @@ class PageEdit(PageREST):
                 "html_url": url}
 
 
-class PageDetailsForm(silvaforms.SMIEditForm):
-    grok.context(IPage)
-    grok.name('details')
+class PageTemplateForm(silvaforms.SMIEditForm):
+    grok.context(IPageContent)
+    grok.name('template')
 
-    label = _(u"Page details")
+    label = _(u"Page template")
     fields = PageFields.omit('id')
 
 
-class PageDetailsMenu(MenuItem):
-    grok.adapts(ContentEditMenu, IPage)
+class PageTemplateMenu(MenuItem):
+    grok.adapts(ContentEditMenu, IPageContent)
     grok.require('silva.ChangeSilvaContent')
     grok.order(15)
 
-    name = _('Details')
-    screen = PageDetailsForm
+    name = _('Template')
+    screen = PageTemplateForm
 
 
 class PageView(silvaviews.View):
