@@ -2,13 +2,15 @@
 from five import grok
 from grokcore.chameleon.components import ChameleonPageTemplate
 from zope.cachedescriptors.property import CachedProperty
-from zope.component import getUtility
+from zope.component import getUtility, getMultiAdapter
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.traversing.browser import absoluteURL
 
+from silva.ui.rest import UIREST
 from silva.app.news.interfaces import IServiceNews
-from silva.core.contentlayout.blocks import Block
-from silva.core.contentlayout.interfaces import IBlockController
+from silva.core.contentlayout.blocks import Block, BlockController
+from silva.core.contentlayout.interfaces import IBlockController, IBlockManager
+
 from silva.translations import translate as _
 
 from .interfaces import INewsPageVersion, IAgendaPageVersion
@@ -28,18 +30,14 @@ class AgendaInfoBlock(Block):
     grok.order(50)
 
 
-class NewsInfoBlockController(grok.MultiAdapter):
+class NewsInfoBlockController(BlockController):
     grok.adapts(NewsInfoBlock, INewsPageVersion, IHTTPRequest)
-    grok.provides(IBlockController)
 
     template = ChameleonPageTemplate(filename="templates/newsinfo.cpt")
 
     def __init__(self, block, version, request):
         self.version = version
         self.request = request
-
-    def remove(self):
-        pass
 
     @CachedProperty
     def url(self):
@@ -51,7 +49,7 @@ class NewsInfoBlockController(grok.MultiAdapter):
 
     @CachedProperty
     def publication_date(self):
-        date = self.context.get_display_datetime()
+        date = self.version.get_display_datetime()
         if date:
             return self.format_date(date)
         return u''
@@ -69,7 +67,7 @@ class NewsInfoBlockController(grok.MultiAdapter):
 
 
 class AgendaInfoBlockController(NewsInfoBlockController):
-    grok.adapts(NewsInfoBlock, IAgendaPageVersion, IHTTPRequest)
+    grok.adapts(AgendaInfoBlock, IAgendaPageVersion, IHTTPRequest)
 
     template = ChameleonPageTemplate(filename="templates/agendainfo.cpt")
 
@@ -77,10 +75,63 @@ class AgendaInfoBlockController(NewsInfoBlockController):
         for occurrence in self.version.get_occurrences():
             timezone = occurrence.get_timezone()
             yield {
-                'start': self.format_data(
+                'start': self.format_date(
                     occurrence.get_start_datetime(timezone),
                     occurrence.is_all_day()),
                 'end': self.format_date(
                     occurrence.get_end_datetime(timezone),
                     occurrence.is_all_day()),
                 'location': occurrence.get_location()}
+
+
+class AddBlockREST(UIREST):
+    grok.baseclass()
+    grok.name('add')
+    grok.require('silva.ChangeSilvaContent')
+
+    message = 'Block created.'
+    autoclose = 4000
+
+    def __init__(self, context, request, restriction=None):
+        super(AddBlockREST, self).__init__(context, request)
+        self.restriction = restriction
+
+    def _create_block(self):
+        raise NotImplementedError
+
+    def POST(self):
+        block = self._create_block()
+        block_id = IBlockManager(self.context).new(
+            self.__parent__.slot_id, block)
+        controller = getMultiAdapter(
+            (block, self.context, self.request), IBlockController)
+
+        return self.json_response(
+            {'content' :
+                 {'extra':
+                      {'block_id': block_id,
+                       'block_data': controller.render(),
+                       'block_editable': False},
+                  'success': True},
+             "notifications": [{"category": "",
+                                "message": self.message,
+                                "autoclose": self.autoclose}],
+             })
+
+
+class AddNewsBlockREST(AddBlockREST):
+    grok.adapts(NewsInfoBlock, INewsPageVersion)
+
+    message = 'News info block added.'
+
+    def _create_block(self):
+        return NewsInfoBlock()
+
+
+class AddAgendaBlockREST(AddBlockREST):
+    grok.adapts(AgendaInfoBlock, IAgendaPageVersion)
+
+    message = 'Agenda info block added.'
+
+    def _create_block(self):
+        return AgendaInfoBlock()
