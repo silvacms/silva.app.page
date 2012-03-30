@@ -129,5 +129,5 @@ class PageView(silvaviews.View):
 
     def render(self):
         template = self.content.get_template()
-        render = template(self.context, self.request)
+        render = template(self.content, self.request)
         return render()
