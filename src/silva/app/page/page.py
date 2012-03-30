@@ -1,6 +1,8 @@
 
 from five import grok
 from zope.component import getMultiAdapter
+from zope.component import getUtility
+from zope.event import notify
 
 from AccessControl import ClassSecurityInfo
 from AccessControl.security import checkPermission
@@ -11,6 +13,8 @@ from Products.Silva.Version import Version
 
 from silva.core import conf as silvaconf
 from silva.core.contentlayout.interfaces import PageFields
+from silva.core.contentlayout.interfaces import (ITemplateLookup,
+     TemplateAssociatedEvent, TemplateDeassociatedEvent)
 from silva.core.smi.content import ContentEditMenu
 from silva.core.smi.content import IEditScreen
 from silva.core.views import views as silvaviews
@@ -28,11 +32,29 @@ class PageContentVersion(Version):
     grok.baseclass()
     grok.implements(IPageContentVersion)
 
+    _template_name = None
+
+    def get_template(self):
+        service = getUtility(ITemplateLookup)
+        template = service.lookup_by_name(self._template_name)
+        return template
+
+    def set_template(self, template):
+        previous = self.get_template()
+        template_name = grok.name.bind().get(template)
+        self._template_name = template_name
+        if previous != template:
+            if previous is not None:
+                notify(TemplateDeassociatedEvent(self, previous))
+            if template is not None:
+                notify(TemplateAssociatedEvent(self, template))
+        return template
+
     def fulltext(self):
         return [self.get_title()]
 
 
-class PageVersion(Version):
+class PageVersion(PageContentVersion):
     """A version of a Silva Page (i.e. a web page)
     """
     security = ClassSecurityInfo()
@@ -106,5 +128,6 @@ class PageView(silvaviews.View):
     grok.context(IPageContent)
 
     def render(self):
-        template = self.content.template(self.content, self.request)
-        return template()
+        template = self.content.get_template()
+        render = template(self.context, self.request)
+        return render()

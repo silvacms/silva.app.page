@@ -68,7 +68,7 @@ class NewsInfoBlockController(grok.MultiAdapter):
         return self.template.render(self)
 
 
-class AgendaInfoBlockControl(NewsInfoBlockController):
+class AgendaInfoBlockController(NewsInfoBlockController):
     grok.adapts(NewsInfoBlock, IAgendaPageVersion, IHTTPRequest)
 
     template = ChameleonPageTemplate(filename="templates/agendainfo.cpt")
