@@ -3,6 +3,7 @@ from five import grok
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.event import notify
+from zope.i18n import translate
 
 from AccessControl import ClassSecurityInfo
 from AccessControl.security import checkPermission
@@ -36,13 +37,17 @@ class PageContentVersion(Version):
 
     def get_design(self):
         service = getUtility(IDesignLookup)
-        design = service.lookup_by_name(self._design_name)
-        return design
+        if self._design_name is not None:
+            return service.lookup_by_name(self._design_name)
+        return None
 
     def set_design(self, design):
         previous = self.get_design()
-        design_name = grok.name.bind().get(design)
-        self._design_name = design_name
+        if design is None:
+            identifier = None
+        else:
+            identifier = design.get_identifier()
+        self._design_name = identifier
         if previous != design:
             if previous is not None:
                 notify(DesignDeassociatedEvent(self, previous))
@@ -129,5 +134,9 @@ class PageView(silvaviews.View):
 
     def render(self):
         design = self.content.get_design()
-        render = design(self.content, self.request)
-        return render()
+        if design is not None:
+            render = design(self.content, self.request)
+            return render()
+        msg = _('Sorry, this ${meta_type} is not viewable.',
+                mapping={'meta_type': self.context.meta_type})
+        return '<p>%s</p>' % translate(msg, context=self.request)
