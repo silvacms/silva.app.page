@@ -13,8 +13,8 @@ from Products.Silva.Version import Version
 
 from silva.core import conf as silvaconf
 from silva.core.contentlayout.interfaces import PageFields
-from silva.core.contentlayout.interfaces import (ITemplateLookup,
-     TemplateAssociatedEvent, TemplateDeassociatedEvent)
+from silva.core.contentlayout.interfaces import (IDesignLookup,
+     DesignAssociatedEvent, DesignDeassociatedEvent)
 from silva.core.smi.content import ContentEditMenu
 from silva.core.smi.content import IEditScreen
 from silva.core.views import views as silvaviews
@@ -32,23 +32,23 @@ class PageContentVersion(Version):
     grok.baseclass()
     grok.implements(IPageContentVersion)
 
-    _template_name = None
+    _design_name = None
 
-    def get_template(self):
-        service = getUtility(ITemplateLookup)
-        template = service.lookup_by_name(self._template_name)
-        return template
+    def get_design(self):
+        service = getUtility(IDesignLookup)
+        design = service.lookup_by_name(self._design_name)
+        return design
 
-    def set_template(self, template):
-        previous = self.get_template()
-        template_name = grok.name.bind().get(template)
-        self._template_name = template_name
-        if previous != template:
+    def set_design(self, design):
+        previous = self.get_design()
+        design_name = grok.name.bind().get(design)
+        self._design_name = design_name
+        if previous != design:
             if previous is not None:
-                notify(TemplateDeassociatedEvent(self, previous))
-            if template is not None:
-                notify(TemplateAssociatedEvent(self, template))
-        return template
+                notify(DesignDeassociatedEvent(self, previous))
+            if design is not None:
+                notify(DesignAssociatedEvent(self, design))
+        return design
 
     def fulltext(self):
         return [self.get_title()]
@@ -107,27 +107,27 @@ class PageEdit(PageREST):
                 "html_url": url}
 
 
-class PageTemplateForm(silvaforms.SMIEditForm):
+class PageDesignForm(silvaforms.SMIEditForm):
     grok.context(IPageContent)
-    grok.name('template')
+    grok.name('design')
 
-    label = _(u"Page template")
+    label = _(u"Page design")
     fields = PageFields.omit('id')
 
 
-class PageTemplateMenu(MenuItem):
+class PageDesignMenu(MenuItem):
     grok.adapts(ContentEditMenu, IPageContent)
     grok.require('silva.ChangeSilvaContent')
     grok.order(15)
 
-    name = _('Template')
-    screen = PageTemplateForm
+    name = _('Design')
+    screen = PageDesignForm
 
 
 class PageView(silvaviews.View):
     grok.context(IPageContent)
 
     def render(self):
-        template = self.content.get_template()
-        render = template(self.content, self.request)
+        design = self.content.get_design()
+        render = design(self.content, self.request)
         return render()
