@@ -18,6 +18,7 @@ from silva.core.contentlayout.interfaces import PageFields
 from silva.core.contentlayout.interfaces import IBlockManager
 from silva.core.contentlayout.interfaces import (IDesignLookup,
      DesignAssociatedEvent, DesignDeassociatedEvent)
+from silva.core.interfaces.adapters import IIndexEntries
 from silva.core.smi.content import ContentEditMenu
 from silva.core.smi.content import IEditScreen
 from silva.core.views import views as silvaviews
@@ -149,3 +150,27 @@ class PageView(silvaviews.View):
         msg = _('Sorry, this ${meta_type} is not viewable.',
                 mapping={'meta_type': self.context.meta_type})
         return '<p>%s</p>' % translate(msg, context=self.request)
+
+
+#Indexes
+class PageIndexEntries(grok.Adapter):
+    grok.implements(IIndexEntries)
+    grok.context(IPageContent)
+
+    def get_title(self):
+        return self.context.get_title()
+
+    def get_entries(self):
+        version = self.context.get_viewable()
+        if version is None:
+            return []
+
+        indexes = []
+        manager = IBlockManager(version)
+
+        def collect(block_id, controller):
+            indexes.extend(controller.indexes())
+
+        manager.visit(collect, version, TestRequest())
+
+        return indexes
