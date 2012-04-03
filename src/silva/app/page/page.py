@@ -4,6 +4,7 @@ from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.event import notify
 from zope.i18n import translate
+from zope.publisher.browser import TestRequest
 
 from AccessControl import ClassSecurityInfo
 from AccessControl.security import checkPermission
@@ -14,6 +15,7 @@ from Products.Silva.Version import Version
 
 from silva.core import conf as silvaconf
 from silva.core.contentlayout.interfaces import PageFields
+from silva.core.contentlayout.interfaces import IBlockManager
 from silva.core.contentlayout.interfaces import (IDesignLookup,
      DesignAssociatedEvent, DesignDeassociatedEvent)
 from silva.core.smi.content import ContentEditMenu
@@ -56,7 +58,14 @@ class PageContentVersion(Version):
         return design
 
     def fulltext(self):
-        return [self.get_title()]
+        fulltext = [self.get_title()]
+        manager = IBlockManager(self)
+
+        def collect(block_id, controller):
+            fulltext.extend(controller.fulltext())
+
+        manager.visit(collect, self, TestRequest())
+        return fulltext
 
 
 class PageVersion(PageContentVersion):

@@ -3,6 +3,8 @@ from five import grok
 from grokcore.chameleon.components import ChameleonPageTemplate
 from zope.cachedescriptors.property import CachedProperty
 from zope.component import getUtility, getMultiAdapter
+from zope.event import notify
+from zope.lifecycleevent import ObjectModifiedEvent
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.traversing.browser import absoluteURL
 
@@ -104,6 +106,7 @@ class AddBlockREST(UIREST):
             self.__parent__.slot_id, block)
         controller = getMultiAdapter(
             (block, self.context, self.request), IBlockController)
+        notify(ObjectModifiedEvent(self.context))
 
         return self.json_response(
             {'content' :
