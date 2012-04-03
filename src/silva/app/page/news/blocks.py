@@ -6,12 +6,11 @@ from zope.component import getUtility, getMultiAdapter
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.traversing.browser import absoluteURL
 
-from silva.ui.rest import UIREST
 from silva.app.news.interfaces import IServiceNews
 from silva.core.contentlayout.blocks import Block, BlockController
 from silva.core.contentlayout.interfaces import IBlockController, IBlockManager
-
 from silva.translations import translate as _
+from silva.ui.rest import UIREST
 
 from .interfaces import INewsPageVersion, IAgendaPageVersion
 
@@ -89,7 +88,7 @@ class AddBlockREST(UIREST):
     grok.name('add')
     grok.require('silva.ChangeSilvaContent')
 
-    message = 'Block created.'
+    message = _(u'Block created.')
     autoclose = 4000
 
     def __init__(self, context, request, restriction=None):
@@ -101,7 +100,7 @@ class AddBlockREST(UIREST):
 
     def POST(self):
         block = self._create_block()
-        block_id = IBlockManager(self.context).new(
+        block_id = IBlockManager(self.context).add(
             self.__parent__.slot_id, block)
         controller = getMultiAdapter(
             (block, self.context, self.request), IBlockController)
@@ -122,7 +121,7 @@ class AddBlockREST(UIREST):
 class AddNewsBlockREST(AddBlockREST):
     grok.adapts(NewsInfoBlock, INewsPageVersion)
 
-    message = 'News info block added.'
+    message = _(u'News info block added.')
 
     def _create_block(self):
         return NewsInfoBlock()
@@ -131,7 +130,7 @@ class AddNewsBlockREST(AddBlockREST):
 class AddAgendaBlockREST(AddBlockREST):
     grok.adapts(AgendaInfoBlock, IAgendaPageVersion)
 
-    message = 'Agenda info block added.'
+    message = _(u'Agenda info block added.')
 
     def _create_block(self):
         return AgendaInfoBlock()
