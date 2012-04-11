@@ -24,6 +24,7 @@ from silva.core.smi.content import IEditScreen
 from silva.core.views import views as silvaviews
 from silva.core.views.interfaces import ISilvaURL
 from silva.translations import translate as _
+from silva.ui.interfaces import IJSView
 from silva.ui.menu import MenuItem
 from silva.ui.rest.base import Screen, PageREST
 from zeam.form import silva as silvaforms
@@ -114,8 +115,9 @@ class PageEdit(PageREST):
         if checkPermission('silva.ChangeSilvaContent', self.context):
             version = self.context.get_editable()
             if version is not None:
-                return {"ifaces": ["content-layout"],
-                        "path": version.getId()}
+                view = getMultiAdapter(
+                    (version, self.request), IJSView, name='content-layout')
+                return view(self, identifier=version.getId())
 
         url = getMultiAdapter((self.context, self.request), ISilvaURL).preview()
         return {"ifaces": ["preview"],
