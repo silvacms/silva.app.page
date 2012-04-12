@@ -101,18 +101,15 @@ class AddBlockREST(UIREST):
         raise NotImplementedError
 
     def POST(self):
-        block = self._create_block()
-        block_id = IBlockManager(self.context).add(
-            self.__parent__.slot_id, block)
-        controller = getMultiAdapter(
-            (block, self.context, self.request), IBlockController)
+        adding = self.__parent__
+        adding.add(self._create_block())
         notify(ObjectModifiedEvent(self.context))
 
         return self.json_response(
             {'content' :
                  {'extra':
-                      {'block_id': block_id,
-                       'block_data': controller.render(),
+                      {'block_id': adding.block_id,
+                       'block_data': adding.block_controller.render(),
                        'block_editable': False},
                   'success': True},
              "notifications": [{"category": "",
