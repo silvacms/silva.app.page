@@ -2,7 +2,7 @@
 from five import grok
 from grokcore.chameleon.components import ChameleonPageTemplate
 from zope.cachedescriptors.property import CachedProperty
-from zope.component import getUtility, getMultiAdapter
+from zope.component import getUtility
 from zope.event import notify
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.publisher.interfaces.http import IHTTPRequest
@@ -10,7 +10,6 @@ from zope.traversing.browser import absoluteURL
 
 from silva.app.news.interfaces import IServiceNews
 from silva.core.contentlayout.blocks import Block, BlockController
-from silva.core.contentlayout.interfaces import IBlockController, IBlockManager
 from silva.translations import translate as _
 from silva.ui.rest import UIREST
 
@@ -93,8 +92,9 @@ class AddBlockREST(UIREST):
     message = _(u'Block created.')
     autoclose = 4000
 
-    def __init__(self, context, request, restriction=None):
+    def __init__(self, context, request, configuration, restriction):
         super(AddBlockREST, self).__init__(context, request)
+        self.configuration = configuration
         self.restriction = restriction
 
     def _create_block(self):

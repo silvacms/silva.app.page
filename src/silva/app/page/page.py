@@ -15,7 +15,7 @@ from Products.Silva.Version import Version
 
 from silva.core import conf as silvaconf
 from silva.core.contentlayout.interfaces import PageFields
-from silva.core.contentlayout.interfaces import IBlockManager
+from silva.core.contentlayout.interfaces import IBoundBlockManager
 from silva.core.contentlayout.interfaces import (IDesignLookup,
      DesignAssociatedEvent, DesignDeassociatedEvent)
 from silva.core.interfaces.adapters import IIndexEntries
@@ -42,7 +42,7 @@ class PageContentVersion(Version):
     def get_design(self):
         service = getUtility(IDesignLookup)
         if self._design_name is not None:
-            return service.lookup_by_name(self._design_name)
+            return service.lookup_design_by_name(self._design_name)
         return None
 
     def set_design(self, design):
@@ -61,12 +61,13 @@ class PageContentVersion(Version):
 
     def fulltext(self):
         fulltext = [self.get_title()]
-        manager = IBlockManager(self)
+        manager = getMultiAdapter(
+            (self, TestRequest()), IBoundBlockManager)
 
         def collect(block_id, controller):
             fulltext.extend(controller.fulltext())
 
-        manager.visit(collect, self, TestRequest())
+        manager.visit(collect)
         return fulltext
 
 
@@ -168,11 +169,12 @@ class PageIndexEntries(grok.Adapter):
             return []
 
         indexes = []
-        manager = IBlockManager(version)
+        manager = getMultiAdapter(
+            (version, TestRequest()), IBoundBlockManager)
 
         def collect(block_id, controller):
             indexes.extend(controller.indexes())
 
-        manager.visit(collect, version, TestRequest())
+        manager.visit(collect)
 
         return indexes
