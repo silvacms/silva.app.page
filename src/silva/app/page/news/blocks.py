@@ -62,8 +62,10 @@ class NewsInfoBlockController(BlockController):
                 'request': self.request,
                 'view': self}
 
-    def render(self):
-        return self.template.render(self)
+    def render(self, view=None):
+        if view is None or view.final:
+            return self.template.render(self)
+        return _(u"This block is not available in this context.")
 
 
 class AgendaInfoBlockController(NewsInfoBlockController):
@@ -105,17 +107,18 @@ class AddBlockREST(UIREST):
         adding.add(self._create_block())
         notify(ObjectModifiedEvent(self.context))
 
-        return self.json_response(
-            {'content' :
-                 {'extra':
-                      {'block_id': adding.block_id,
-                       'block_data': adding.block_controller.render(),
-                       'block_editable': False},
-                  'success': True},
-             "notifications": [{"category": "",
-                                "message": self.message,
-                                "autoclose": self.autoclose}],
-             })
+        return self.json_response({
+                'content' : {
+                    'extra': {
+                        'block_id': adding.block_id,
+                        'block_data': adding.block_controller.render(),
+                        'block_editable': False},
+                    'success': True},
+                "notifications": [{
+                        "category": "",
+                        "message": self.message,
+                        "autoclose": self.autoclose}],
+                })
 
 
 class AddNewsBlockREST(AddBlockREST):

@@ -124,8 +124,9 @@ class PageView(silvaviews.View):
     def render(self):
         design = self.content.get_design()
         if design is not None:
-            render = design(self.content, self.request)
-            return render()
+            render = design(self.content, self.request, [self.content])
+            if render is not None:
+                return render()
         msg = _('Sorry, this ${meta_type} is not viewable.',
                 mapping={'meta_type': self.context.meta_type})
         return '<p>%s</p>' % translate(msg, context=self.request)
