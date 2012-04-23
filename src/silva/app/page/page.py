@@ -1,8 +1,6 @@
 
 from five import grok
 from zope.component import getMultiAdapter
-from zope.component import getUtility
-from zope.event import notify
 from zope.i18n import translate
 from zope.publisher.browser import TestRequest
 
@@ -16,8 +14,8 @@ from Products.Silva.Version import Version
 from silva.core import conf as silvaconf
 from silva.core.contentlayout.interfaces import PageFields
 from silva.core.contentlayout.interfaces import IBoundBlockManager
-from silva.core.contentlayout.interfaces import (IDesignLookup,
-     DesignAssociatedEvent, DesignDeassociatedEvent)
+from silva.core.contentlayout.designs.design import DesignAccessors
+
 from silva.core.interfaces.adapters import IIndexEntries
 from silva.core.smi.content import ContentEditMenu
 from silva.core.smi.content import IEditScreen
@@ -33,31 +31,9 @@ from .interfaces import IPage, IPageVersion, IPageContent
 from .interfaces import IPageContentVersion
 
 
-class PageContentVersion(Version):
+class PageContentVersion(Version, DesignAccessors):
     grok.baseclass()
     grok.implements(IPageContentVersion)
-
-    _design_name = None
-
-    def get_design(self):
-        service = getUtility(IDesignLookup)
-        if self._design_name is not None:
-            return service.lookup_design_by_name(self._design_name)
-        return None
-
-    def set_design(self, design):
-        previous = self.get_design()
-        if design is None:
-            identifier = None
-        else:
-            identifier = design.get_identifier()
-        self._design_name = identifier
-        if previous != design:
-            if previous is not None:
-                notify(DesignDeassociatedEvent(self, previous))
-            if design is not None:
-                notify(DesignAssociatedEvent(self, design))
-        return design
 
     def fulltext(self):
         fulltext = [self.get_title()]

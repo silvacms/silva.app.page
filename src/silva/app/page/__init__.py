@@ -43,6 +43,10 @@ class PageInstaller(DefaultInstaller):
         if queryUtility(ICKEditorService) is None:
             factory = root.manage_addProduct['silva.core.editor']
             factory.manage_addCKEditorService()
+
+        service = queryUtility(ICKEditorService)
+        service.declare_configuration('Silva Page')
+
         root.service_containerpolicy.register(
             'Silva Page', PagePolicy, 0)
 
