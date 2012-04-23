@@ -44,8 +44,10 @@ class PageInstaller(DefaultInstaller):
             factory = root.manage_addProduct['silva.core.editor']
             factory.manage_addCKEditorService()
 
-        service = queryUtility(ICKEditorService)
-        service.declare_configuration('Silva Page')
+        declare = queryUtility(ICKEditorService).declare_configuration
+        declare('Silva Page')
+        declare('Silva News Page', ['Silva Page'])
+        declare('Silva Agenda Page', ['Silva News Page', 'Silva Page'])
 
         root.service_containerpolicy.register(
             'Silva Page', PagePolicy, 0)
