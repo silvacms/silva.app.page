@@ -5,6 +5,7 @@ version = '2.0dev'
 
 tests_require = [
     'Products.Silva [test]',
+    'silva.app.news',
     ]
 
 setup(name='silva.app.page',

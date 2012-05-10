@@ -10,12 +10,15 @@ import transaction
 
 class SilvaPageLayer(SilvaLayer):
     default_packages = SilvaLayer.default_packages + [
+        'silva.core.editor',
         'silva.core.contentlayout',
-        'silva.app.page'
+        'silva.app.news',
+        'silva.app.page',
         ]
 
     def _install_application(self, app):
         super(SilvaPageLayer, self)._install_application(app)
+        app.root.service_extensions.install('silva.app.news')
         app.root.service_extensions.install('silva.app.page')
         transaction.commit()
 
