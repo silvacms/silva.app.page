@@ -102,7 +102,7 @@ class AddBlockREST(UIREST):
     def _create_block(self):
         raise NotImplementedError
 
-    def POST(self):
+    def GET(self):
         adding = self.__parent__
         adding.add(self._create_block())
         notify(ObjectModifiedEvent(self.context))
