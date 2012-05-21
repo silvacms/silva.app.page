@@ -1,112 +1,47 @@
-from DateTime import DateTime
 
-from Products.Silva.silvaxml.xmlimport import SilvaBaseHandler
 from silva.core import conf as silvaconf
-#from silva.core.contentlayout.interfaces import IPartFactory
+from Products.Silva.silvaxml import xmlimport, NS_SILVA_URI
+from silva.core.contentlayout.silvaxml import NS_URI
+from silva.core.contentlayout.silvaxml.xmlimport import DesignHandler
 
-from silva.app.page.silvaxml.xmlexport import NS_CL
+silvaconf.namespace(NS_URI)
 
-silvaconf.namespace(NS_CL)
 
-class PageHandler(SilvaBaseHandler):
+class PageHandler(xmlimport.SilvaBaseHandler):
     silvaconf.name('page')
+
     def getOverrides(self):
-        return {
-            (NS_CL, 'content'): PageContentHandler
-            }
+        return {(NS_SILVA_URI, 'content'): PageVersionHandler}
 
     def startElementNS(self, name, qname, attrs):
-        if name== (NS_CL, 'page'):
+        if name == (NS_URI, 'page'):
             uid = self.generateOrReplaceId(attrs[(None, 'id')].encode('utf-8'))
-            folder = self.parent()
-            factory = folder.manage_addProduct['silva.app.page']
+            factory = self.parent().manage_addProduct[
+                'silva.core.contentlayout']
             factory.manage_addPage(uid, '', no_default_version=True)
-            last_author = attrs.get((None, 'last_author'),None)
-            if last_author:
-                self.setAuthor(getattr(self.parent(), uid), self.parent(),
-                               last_author)
             self.setResultId(uid)
 
     def endElementNS(self, name, qname):
-        if name == (NS_CL, 'page'):
+        if name == (NS_URI, 'page'):
             self.notifyImport()
 
 
-class PageContentHandler(SilvaBaseHandler):
-    def getOverrides(self):
-        return {
-            (NS_CL, 'part'): ContentLayoutPartHandler
-            }
+class PageVersionHandler(xmlimport.SilvaBaseHandler):
 
-    def characters(self, chars):
-        self._chars = chars
+    def getOverrides(self):
+        return {(NS_URI, 'design'): DesignHandler}
 
     def startElementNS(self, name, qname, attrs):
-        if name == (NS_CL, 'content'):
-            if attrs.has_key((None, 'version_id')):
-                uid = attrs[(None, 'version_id')].encode('utf-8')
-                factory = self.parent().manage_addProduct['silva.app.page']
-                factory.manage_addPageVersion(uid, '')
-                last_author = attrs.get((None, 'last_author'),None)
-                if last_author:
-                    self.setAuthor(getattr(self.parent(), uid), self.parent(),
-                                   last_author)
-                self.setResultId(uid)
+        if (NS_SILVA_URI, 'content') == name:
+            uid = attrs[(None, 'version_id')].encode('utf-8')
+            factory = self.parent().manage_addProduct[
+                'silva.core.contentlayout']
+            factory.manage_addPageVersion(uid, '')
+            self.setResultId(uid)
 
     def endElementNS(self, name, qname):
-        if name == (NS_CL, 'content'):
+        if (NS_SILVA_URI, 'content') == name:
+            xmlimport.updateVersionCount(self)
             self.storeMetadata()
             self.storeWorkflow()
-        elif name == (NS_CL, 'layout'):
-            self._result.switch_template(self._chars)
-
-
-class ContentLayoutPartHandler(SilvaBaseHandler):
-    def getOverrides(self):
-        return {
-            (NS_CL, 'config'): ConfigElementHandler
-            }
-
-    def characters(self, chars):
-        self._chars = chars
-
-    def startElementNS(self, name, qname, attrs):
-        pass
-
-    def endElementNS(self, name, qname):
-        if name == (NS_CL, 'name'):
-            cs = getattr(self.parent().aq_inner, self._chars)
-            pf = IPartFactory(cs)
-            self._part = pf.create({})
-        elif name == (NS_CL, 'slot'):
-            self.parent().add_part_to_slot(self._part, self._chars)
-            self.setResult(self.parent().get_part(self._part.get_key()))
-
-
-class ConfigElementHandler(SilvaBaseHandler):
-    def getOverrides(self):
-        return {}
-
-    def characters(self, chars):
-        self._chars = chars
-
-    def startElementNS(self, name, qname, attrs):
-        if name == (NS_CL, 'config'):
-            self._config = {}
-        else:
-            self._type = attrs[(None, 'type')]
-            self._chars = ''
-
-    def endElementNS(self, name, qname):
-        if name == (NS_CL, 'config'):
-            self.parent().set_config(self._config)
-        else:
-            if self._type == 'DateTimeField':
-                self._config[str(name[1])] = DateTime(self._chars)
-            elif self._type in ('EmailLinesField', 'LinesField', \
-                                'MultiCheckBoxField', 'MultiListField', 'PhoneField'):
-                self._config[str(name[1])] = eval(self._chars)
-            else:
-                self._config[str(name[1])] = self._chars
-
 
