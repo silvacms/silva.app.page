@@ -17,7 +17,7 @@ class PageHandler(xmlimport.SilvaBaseHandler):
         if name == (NS_URI, 'page'):
             uid = self.generateOrReplaceId(attrs[(None, 'id')].encode('utf-8'))
             factory = self.parent().manage_addProduct[
-                'silva.core.contentlayout']
+                'silva.app.page']
             factory.manage_addPage(uid, '', no_default_version=True)
             self.setResultId(uid)
 
@@ -35,7 +35,7 @@ class PageVersionHandler(xmlimport.SilvaBaseHandler):
         if (NS_SILVA_URI, 'content') == name:
             uid = attrs[(None, 'version_id')].encode('utf-8')
             factory = self.parent().manage_addProduct[
-                'silva.core.contentlayout']
+                'silva.app.page']
             factory.manage_addPageVersion(uid, '')
             self.setResultId(uid)
 
