@@ -57,7 +57,6 @@ class TestPageExport(SilvaXMLTestCase):
         self.assertEquals(version, self.page_version.get_design())
 
         xml, _ = exportToString(self.base_folder)
-        print xml
         self.assertExportEqual(
             xml, 'test_export_with_page_model.silva.xml', globs=globals())
 
