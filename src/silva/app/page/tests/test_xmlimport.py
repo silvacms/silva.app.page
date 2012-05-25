@@ -8,6 +8,8 @@ from zope.publisher.browser import TestRequest
 from zope.component import getUtility
 from silva.app.page.news.news import NewsPage, NewsPageVersion
 from silva.app.page.news.agenda import AgendaPageVersion, AgendaPage
+from silva.core.contentlayout.interfaces import IBlockManager
+from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
 
 
 class TestPageImport(SilvaXMLTestCase):
@@ -50,6 +52,8 @@ class TestPageImport(SilvaXMLTestCase):
         self.import_file("test_import_news_page.silva.xml", globs=globals())
         message_service = getUtility(IMessageService)
         errors = message_service.receive(TestRequest(), namespace='error')
+        self.assertEquals(0, len(errors),
+            "import warning: " + "\n".join(map(str, errors)))
 
         base = self.root._getOb('news')
         news_page = base._getOb('newspage')
@@ -59,12 +63,18 @@ class TestPageImport(SilvaXMLTestCase):
         design = version.get_design()
         self.assertTrue(design)
 
-        # XXX: add block test
+        manager = IBlockManager(version)
+        slot = manager.get_slot('one')
+        _, block = slot[0]
+        self.assertIsInstance(block, NewsInfoBlock)
+
 
     def test_import_agenda_page(self):
         self.import_file("test_import_agenda_page.silva.xml", globs=globals())
         message_service = getUtility(IMessageService)
         errors = message_service.receive(TestRequest(), namespace='error')
+        self.assertEquals(0, len(errors),
+            "import warning: " + "\n".join(map(str, errors)))
 
         base = self.root._getOb('news')
         agenda_page = base._getOb('agendapage')
@@ -74,4 +84,7 @@ class TestPageImport(SilvaXMLTestCase):
         design = version.get_design()
         self.assertTrue(design)
 
-        # XXX: add block test
+        manager = IBlockManager(version)
+        slot = manager.get_slot('one')
+        _, block = slot[0]
+        self.assertIsInstance(block, AgendaInfoBlock)
