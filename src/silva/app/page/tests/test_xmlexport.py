@@ -1,4 +1,6 @@
 
+from datetime import datetime
+
 from zope.component import getMultiAdapter
 from zope.publisher.browser import TestRequest
 
@@ -10,6 +12,7 @@ from silva.core.contentlayout import interfaces
 from Products.Silva.tests.test_xml_export import SilvaXMLTestCase
 from Products.Silva.silvaxml.xmlexport import exportToString
 from silva.core.interfaces import IPublicationWorkflow
+from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
 
 
 class TestPageExport(SilvaXMLTestCase):
@@ -60,3 +63,65 @@ class TestPageExport(SilvaXMLTestCase):
         self.assertExportEqual(
             xml, 'test_export_with_page_model.silva.xml', globs=globals())
 
+
+class TestExportNewsPage(SilvaXMLTestCase):
+
+    layer = FunctionalLayer
+
+    def setUp(self):
+        # adding base folder
+        self.root = self.layer.get_application()
+        self.layer.login('editor')
+
+        factory = self.root.manage_addProduct['silva.app.news']
+        factory.manage_addNewsPublication('news', 'News')
+        # Show agenda items in the filter.
+        self.base_folder = self.root.news
+        self.base_folder.filter.set_show_agenda_items(True)
+        assert self.base_folder
+
+
+    def test_export_news_info_page(self):
+        # adding news page
+        factory = self.base_folder.manage_addProduct['silva.app.page']
+        factory.manage_addNewsPage('newspage', 'A News Page')
+        self.news_page = self.base_folder.newspage
+        assert self.news_page
+        self.news_page_version = self.news_page.get_editable()
+        self.design = registry.lookup_design_by_name('adesign')
+        assert self.design, 'design not found'
+        self.news_page_version.set_design(self.design)
+
+        self.news_page_version.set_subjects(['all'])
+        self.news_page_version.set_target_audiences(['generic'])
+        self.news_page_version.set_display_datetime(
+            datetime(2010, 9, 30, 10, 0, 0))
+
+        # adding blocks
+        block = NewsInfoBlock()
+        manager = interfaces.IBlockManager(self.news_page_version)
+        manager.add('one', block)
+
+        xml, _ = exportToString(self.base_folder)
+        self.assertExportEqual(
+            xml, 'test_export_news_page.silva.xml', globs=globals())
+
+    def test_export_agenda_info_page(self): 
+        # adding agenda page
+        factory = self.base_folder.manage_addProduct['silva.app.page']
+        factory.manage_addAgendaPage('agendapage', 'An Agenda Page')
+        self.agenda_page = self.base_folder.agendapage
+        assert self.agenda_page
+        self.agenda_page_version = self.agenda_page.get_editable()
+        self.design = registry.lookup_design_by_name('adesign')
+        assert self.design, 'design not found'
+        self.agenda_page_version.set_design(self.design)
+
+        # adding block
+        block = AgendaInfoBlock()
+        manager = interfaces.IBlockManager(self.agenda_page_version)
+        manager.add('one', block)
+
+        xml, _ = exportToString(self.base_folder)
+        self.assertExportEqual(
+            xml, 'test_export_agenda_page.silva.xml', globs=globals())
