@@ -18,15 +18,15 @@ from .interfaces import INewsPageVersion, IAgendaPageVersion
 
 class NewsInfoBlock(Block):
     grok.context(INewsPageVersion)
-    grok.name('news-info')
-    grok.title(_(u'News info'))
+    grok.name('news-information')
+    grok.title(_(u'News information'))
     grok.order(50)
 
 
 class AgendaInfoBlock(Block):
     grok.context(IAgendaPageVersion)
-    grok.name('agenda-info')
-    grok.title(_(u'Agenda info'))
+    grok.name('agenda-information')
+    grok.title(_(u'Agenda information'))
     grok.order(50)
 
 
@@ -65,7 +65,7 @@ class NewsInfoBlockController(BlockController):
     def render(self, view=None):
         if view is None or view.final:
             return self.template.render(self)
-        return _(u"This block is not available in this context.")
+        return _(u"This component is not available in this context.")
 
 
 class AgendaInfoBlockController(NewsInfoBlockController):
@@ -91,7 +91,7 @@ class AddBlockREST(UIREST):
     grok.name('add')
     grok.require('silva.ChangeSilvaContent')
 
-    message = _(u'Block created.')
+    message = _(u'Component created.')
     autoclose = 4000
 
     def __init__(self, context, request, configuration, restriction):
@@ -124,7 +124,7 @@ class AddBlockREST(UIREST):
 class AddNewsBlockREST(AddBlockREST):
     grok.adapts(NewsInfoBlock, INewsPageVersion)
 
-    message = _(u'News info block added.')
+    message = _(u'News information component added.')
 
     def _create_block(self):
         return NewsInfoBlock()
@@ -133,7 +133,7 @@ class AddNewsBlockREST(AddBlockREST):
 class AddAgendaBlockREST(AddBlockREST):
     grok.adapts(AgendaInfoBlock, IAgendaPageVersion)
 
-    message = _(u'Agenda info block added.')
+    message = _(u'Agenda information component added.')
 
     def _create_block(self):
         return AgendaInfoBlock()
