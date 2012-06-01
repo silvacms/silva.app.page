@@ -1,15 +1,17 @@
 
+from zope.component import getUtility
+from zope.publisher.browser import TestRequest
+
 from Products.Silva.tests.test_xml_import import SilvaXMLTestCase
-from ..testing import FunctionalLayer
+from silva.app.page.news.agenda import AgendaPageVersion, AgendaPage
+from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
+from silva.app.page.news.news import NewsPage, NewsPageVersion
 from silva.app.page.page import Page, PageVersion
+from silva.core.contentlayout.interfaces import IBlockManager
 from silva.core.contentlayout.model import PageModelVersion
 from silva.core.messages.interfaces import IMessageService
-from zope.publisher.browser import TestRequest
-from zope.component import getUtility
-from silva.app.page.news.news import NewsPage, NewsPageVersion
-from silva.app.page.news.agenda import AgendaPageVersion, AgendaPage
-from silva.core.contentlayout.interfaces import IBlockManager
-from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
+
+from ..testing import FunctionalLayer
 
 
 class TestPageImport(SilvaXMLTestCase):
@@ -21,7 +23,7 @@ class TestPageImport(SilvaXMLTestCase):
         self.layer.login('editor')
 
     def test_import_page(self):
-        self.import_file("test_import_page.silva.xml",
+        self.import_file("test_import_page.silvaxml",
                          globs=globals())
         base = self.root._getOb('exportbase')
         page = base._getOb('apage')
@@ -32,7 +34,7 @@ class TestPageImport(SilvaXMLTestCase):
         self.assertTrue(design)
 
     def test_import_with_page_model(self):
-        self.import_file("test_import_with_page_model.silva.xml",
+        self.import_file("test_import_with_page_model.silvaxml",
                          globs=globals())
 
         message_service = getUtility(IMessageService)
@@ -49,7 +51,7 @@ class TestPageImport(SilvaXMLTestCase):
         self.assertIsInstance(page_model, PageModelVersion)
 
     def test_import_news_page(self):
-        self.import_file("test_import_news_page.silva.xml", globs=globals())
+        self.import_file("test_import_news_page.silvaxml", globs=globals())
         message_service = getUtility(IMessageService)
         errors = message_service.receive(TestRequest(), namespace='error')
         self.assertEquals(0, len(errors),
@@ -70,7 +72,7 @@ class TestPageImport(SilvaXMLTestCase):
 
 
     def test_import_agenda_page(self):
-        self.import_file("test_import_agenda_page.silva.xml", globs=globals())
+        self.import_file("test_import_agenda_page.silvaxml", globs=globals())
         message_service = getUtility(IMessageService)
         errors = message_service.receive(TestRequest(), namespace='error')
         self.assertEquals(0, len(errors),

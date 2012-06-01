@@ -4,15 +4,16 @@ from datetime import datetime
 from zope.component import getMultiAdapter
 from zope.publisher.browser import TestRequest
 
-from silva.app.page.testing import FunctionalLayer
-from silva.core.contentlayout.designs.registry import registry
-from silva.core.contentlayout.blocks.text import TextBlock
-from silva.core.contentlayout.blocks.slot import BlockSlot
-from silva.core.contentlayout import interfaces
-from Products.Silva.tests.test_xml_export import SilvaXMLTestCase
 from Products.Silva.silvaxml.xmlexport import exportToString
+from Products.Silva.tests.test_xml_export import SilvaXMLTestCase
+from silva.core.contentlayout import interfaces
+from silva.core.contentlayout.blocks.slot import BlockSlot
+from silva.core.contentlayout.blocks.text import TextBlock
+from silva.core.contentlayout.designs.registry import registry
 from silva.core.interfaces import IPublicationWorkflow
-from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
+
+from ..news.blocks import NewsInfoBlock, AgendaInfoBlock
+from ..testing import FunctionalLayer
 
 
 class TestPageExport(SilvaXMLTestCase):
@@ -36,7 +37,7 @@ class TestPageExport(SilvaXMLTestCase):
     def test_export_page(self):
         xml, _ = exportToString(self.base_folder)
         self.assertExportEqual(
-            xml, 'test_export_page.silva.xml', globs=globals())
+            xml, 'test_export_page.silvaxml', globs=globals())
 
     def test_export_with_page_model(self):
         factory = self.base_folder.manage_addProduct['silva.core.contentlayout']
@@ -61,7 +62,7 @@ class TestPageExport(SilvaXMLTestCase):
 
         xml, _ = exportToString(self.base_folder)
         self.assertExportEqual(
-            xml, 'test_export_with_page_model.silva.xml', globs=globals())
+            xml, 'test_export_with_page_model.silvaxml', globs=globals())
 
 
 class TestExportNewsPage(SilvaXMLTestCase):
@@ -104,7 +105,7 @@ class TestExportNewsPage(SilvaXMLTestCase):
 
         xml, _ = exportToString(self.base_folder)
         self.assertExportEqual(
-            xml, 'test_export_news_page.silva.xml', globs=globals())
+            xml, 'test_export_news_page.silvaxml', globs=globals())
 
     def test_export_agenda_info_page(self): 
         # adding agenda page
@@ -124,4 +125,4 @@ class TestExportNewsPage(SilvaXMLTestCase):
 
         xml, _ = exportToString(self.base_folder)
         self.assertExportEqual(
-            xml, 'test_export_agenda_page.silva.xml', globs=globals())
+            xml, 'test_export_agenda_page.silvaxml', globs=globals())
