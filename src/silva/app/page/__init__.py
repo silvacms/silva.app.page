@@ -49,8 +49,7 @@ class PageInstaller(DefaultInstaller):
         declare('Silva News Page', ['Silva Page'])
         declare('Silva Agenda Page', ['Silva News Page', 'Silva Page'])
 
-        root.service_containerpolicy.register(
-            'Silva Page', PagePolicy, 0)
+        root.service_containerpolicy.register('Silva Page', PagePolicy, 0)
 
 
 class IExtension(Interface):

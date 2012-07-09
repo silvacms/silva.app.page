@@ -17,13 +17,12 @@ from silva.core.contentlayout.interfaces import IBoundBlockManager
 from silva.core.contentlayout.designs.design import DesignAccessors
 
 from silva.core.interfaces.adapters import IIndexEntries
-from silva.core.smi.content import ContentEditMenu
 from silva.core.smi.content import IEditScreen
+from silva.core.smi.settings import Settings
 from silva.core.views import views as silvaviews
 from silva.core.views.interfaces import ISilvaURL
 from silva.translations import translate as _
 from silva.ui.interfaces import IJSView
-from silva.ui.menu import MenuItem
 from silva.ui.rest.base import Screen, PageREST
 from zeam.form import silva as silvaforms
 
@@ -101,21 +100,16 @@ class PageEdit(PageREST):
                 "html_url": url}
 
 
-class PageDesignForm(silvaforms.SMIEditForm):
+class PageDesignForm(silvaforms.SMISubForm):
     grok.context(IPageContent)
-    grok.name('template')
+    grok.view(Settings)
+    grok.order(10)
 
-    label = _(u"Page Template")
-    fields = PageFields.omit('id')
-
-
-class PageDesignMenu(MenuItem):
-    grok.adapts(ContentEditMenu, IPageContent)
-    grok.require('silva.ChangeSilvaContent')
-    grok.order(15)
-
-    name = _('Template')
-    screen = PageDesignForm
+    label = _(u"Page template")
+    fields = PageFields.omit('id', 'title')
+    actions = silvaforms.Actions(
+        silvaforms.CancelAction(),
+        silvaforms.EditAction())
 
 
 class PageView(silvaviews.View):
