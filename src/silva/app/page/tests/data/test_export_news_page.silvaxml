@@ -15,13 +15,17 @@
 				<silva-extra:content_description />
 				<silva-extra:creationtime>YYYY-MM-DDTHH:MM:SS</silva-extra:creationtime>
 				<silva-extra:creator>editor</silva-extra:creator>
-				<silva-extra:hide_from_tocs>hide</silva-extra:hide_from_tocs>
 				<silva-extra:keywords />
 				<silva-extra:language />
 				<silva-extra:lastauthor>editor</silva-extra:lastauthor>
 				<silva-extra:modificationtime>YYYY-MM-DDTHH:MM:SS</silva-extra:modificationtime>
 				<silva-extra:subject />
 			</set>
+            <set xmlns:silvasettings="http://infrae.com/namespace/metadata/silva-settings" id="silva-settings">
+              <silvasettings:hide_from_tocs>
+                hide
+              </silvasettings:hide_from_tocs>
+            </set>
 			<set xmlns:snn-np-settings="http://infrae.com/namespace/metadata/snn-np-settings"
 				id="snn-np-settings">
 				<snn-np-settings:is_private>no</snn-np-settings:is_private>
@@ -43,13 +47,17 @@
 							<silva-extra:content_description />
 							<silva-extra:creationtime>YYYY-MM-DDTHH:MM:SS</silva-extra:creationtime>
 							<silva-extra:creator>editor</silva-extra:creator>
-							<silva-extra:hide_from_tocs>do not hide</silva-extra:hide_from_tocs>
 							<silva-extra:keywords />
 							<silva-extra:language />
 							<silva-extra:lastauthor>editor</silva-extra:lastauthor>
 							<silva-extra:modificationtime>YYYY-MM-DDTHH:MM:SS</silva-extra:modificationtime>
 							<silva-extra:subject />
 						</set>
+                        <set xmlns:silvasettings="http://infrae.com/namespace/metadata/silva-settings" id="silva-settings">
+                          <silvasettings:hide_from_tocs>
+                            do not hide
+                          </silvasettings:hide_from_tocs>
+                        </set>
 					</metadata>
 					<content>
 						<silva-app-news:filters>
@@ -80,13 +88,17 @@
 							<silva-extra:content_description />
 							<silva-extra:creationtime>YYYY-MM-DDTHH:MM:SS</silva-extra:creationtime>
 							<silva-extra:creator>editor</silva-extra:creator>
-							<silva-extra:hide_from_tocs>do not hide</silva-extra:hide_from_tocs>
 							<silva-extra:keywords />
 							<silva-extra:language />
 							<silva-extra:lastauthor>editor</silva-extra:lastauthor>
 							<silva-extra:modificationtime>YYYY-MM-DDTHH:MM:SS</silva-extra:modificationtime>
 							<silva-extra:subject />
 						</set>
+                        <set xmlns:silvasettings="http://infrae.com/namespace/metadata/silva-settings" id="silva-settings">
+                          <silvasettings:hide_from_tocs>
+                            do not hide
+                          </silvasettings:hide_from_tocs>
+                        </set>
 					</metadata>
 					<contentlayout:design id="adesign">
 						<contentlayout:slot id="one">
@@ -109,13 +121,17 @@
 						<silva-extra:content_description />
 						<silva-extra:creationtime>YYYY-MM-DDTHH:MM:SS</silva-extra:creationtime>
 						<silva-extra:creator>editor</silva-extra:creator>
-						<silva-extra:hide_from_tocs>do not hide</silva-extra:hide_from_tocs>
 						<silva-extra:keywords />
 						<silva-extra:language />
 						<silva-extra:lastauthor>editor</silva-extra:lastauthor>
 						<silva-extra:modificationtime>YYYY-MM-DDTHH:MM:SS</silva-extra:modificationtime>
 						<silva-extra:subject />
 					</set>
+                    <set xmlns:silvasettings="http://infrae.com/namespace/metadata/silva-settings" id="silva-settings">
+                      <silvasettings:hide_from_tocs>
+                        do not hide
+                      </silvasettings:hide_from_tocs>
+                    </set>
 				</metadata>
 				<content>
 					<silva-app-news:sources>

@@ -80,7 +80,7 @@
 						<contentlayout:slot id="two">
 							<contentlayout:slotblock css_class=""
 								tag="div" />
-							<contentlayout:textblock>
+							<contentlayout:textblock identifier="text block 456e9173-c9d0-11e1-90bc-c82a142fbbde">
 								<silva-core-editor:text>
 									<html:div>text</html:div>
 								</silva-core-editor:text>

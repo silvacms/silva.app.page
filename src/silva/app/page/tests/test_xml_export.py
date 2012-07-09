@@ -47,9 +47,10 @@ class TestPageExport(SilvaXMLTestCase):
         version.set_design(self.design)
         IPublicationWorkflow(page_model).publish()
 
-        text_block = TextBlock()
-        controller = getMultiAdapter((text_block, self.page_version, TestRequest()),
-                                     interfaces.IBlockController)
+        text_block = TextBlock(identifier='text block 1')
+        controller = getMultiAdapter(
+            (text_block, self.page_version, TestRequest()),
+            interfaces.IBlockController)
         controller.text = "<div>text</div>"
 
         manager = interfaces.IBlockManager(version)
