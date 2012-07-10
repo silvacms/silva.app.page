@@ -100,16 +100,13 @@ class PageEdit(PageREST):
                 "html_url": url}
 
 
-class PageDesignForm(silvaforms.SMISubForm):
+class PageDesignForm(silvaforms.SMISubEditForm):
     grok.context(IPageContent)
     grok.view(Settings)
     grok.order(10)
 
     label = _(u"Page template")
     fields = PageFields.omit('id', 'title')
-    actions = silvaforms.Actions(
-        silvaforms.CancelAction(),
-        silvaforms.EditAction())
 
 
 class PageView(silvaviews.View):
