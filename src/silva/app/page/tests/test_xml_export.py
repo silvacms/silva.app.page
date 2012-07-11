@@ -1,16 +1,16 @@
 
 from datetime import datetime
 
-from zope.component import getMultiAdapter
-from zope.publisher.browser import TestRequest
-
+from Products.Silva.testing import TestRequest
 from Products.Silva.silvaxml.xmlexport import exportToString
 from Products.Silva.tests.test_xml_export import SilvaXMLTestCase
+
 from silva.core.contentlayout import interfaces
 from silva.core.contentlayout.blocks.slot import BlockSlot
 from silva.core.contentlayout.blocks.text import TextBlock
 from silva.core.contentlayout.designs.registry import registry
 from silva.core.interfaces import IPublicationWorkflow
+from zeam.component import getWrapper
 
 from ..news.blocks import NewsInfoBlock, AgendaInfoBlock
 from ..testing import FunctionalLayer
@@ -48,7 +48,7 @@ class TestPageExport(SilvaXMLTestCase):
         IPublicationWorkflow(page_model).publish()
 
         text_block = TextBlock(identifier='text block 1')
-        controller = getMultiAdapter(
+        controller = getWrapper(
             (text_block, self.page_version, TestRequest()),
             interfaces.IBlockController)
         controller.text = "<div>text</div>"
