@@ -3,6 +3,7 @@
 import unittest
 from zope.interface.verify import verifyObject
 
+from silva.core.interfaces import IAddableContents
 from silva.core.interfaces import IPublicationWorkflow
 from silva.app.page.news.interfaces import INewsPage, INewsPageVersion
 from silva.app.page.news.interfaces import IAgendaPage, IAgendaPageVersion
@@ -23,6 +24,26 @@ class NewsPageTestCase(unittest.TestCase):
     def search(self, path):
         return map(lambda b: (b.getPath(), b.publication_status),
                    self.root.service_catalog(path=path))
+
+    def test_news_addables(self):
+        """News page and Agenda page should be addable in a news
+        publication by default.
+        """
+        root_addables = IAddableContents(self.root).get_container_addables()
+        self.assertFalse('Silva News Page' in root_addables)
+        self.assertFalse('Silva Agenda Page' in root_addables)
+        # XXX Addable API need to be fixed for this.
+        #root_addables = IAddableContents(self.root).get_all_addables()
+        #self.assertFalse('Silva News Page' in root_addables)
+        #self.assertFalse('Silva Agenda Page' in root_addables)
+
+        news_addables = IAddableContents(self.root.news).get_container_addables()
+        self.assertTrue('Silva News Page' in news_addables)
+        self.assertTrue('Silva Agenda Page' in news_addables)
+        news_addables = IAddableContents(self.root.news).get_all_addables()
+        self.assertTrue('Silva News Page' in news_addables)
+        self.assertTrue('Silva Agenda Page' in news_addables)
+
 
     def test_news_page(self):
         factory = self.root.news.manage_addProduct['silva.app.page']
