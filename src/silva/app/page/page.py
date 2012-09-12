@@ -95,9 +95,9 @@ class PageEdit(PageREST):
                     (version, self.request), IJSView, name='content-layout')
                 return view(self, identifier=version.getId())
 
-        url = getMultiAdapter((self.context, self.request), ISilvaURL).preview()
-        return {"ifaces": ["preview"],
-                "html_url": url}
+        view = getMultiAdapter(
+            (self.context, self.request), IJSView, name='content-preview')
+        return view(self)
 
 
 class PageDesignForm(silvaforms.SMISubEditForm):
