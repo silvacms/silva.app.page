@@ -1,13 +1,7 @@
-silva.app.page Changelog
-========================
+Changes
+=======
 
-1.0.1 (unreleased)
+3.0c1 (2012/09/25)
 ------------------
 
-* adjust the add form so the layout template is set when
-  a page is created
-
-1.0 (2011-07-07)
-----------------
-
-- Initial release
+- Initial release of Siva 3.0.

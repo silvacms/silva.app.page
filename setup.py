@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2012  Infrae. All rights reserved.
+# See also LICENSE.txt
 from setuptools import setup, find_packages
 import os
 
-version = '2.0dev'
+version = '3.0c1'
 
 tests_require = [
     'Products.Silva [test]',
@@ -19,8 +22,8 @@ setup(name='silva.app.page',
         "Programming Language :: Python",
         ],
       keywords='',
-      author='',
-      author_email='',
+      author='Infrae',
+      author_email='info@infrae.com',
       url='http://hg.infrae.com/silva.app.page',
       license='GPL',
       package_dir={'': 'src'},
