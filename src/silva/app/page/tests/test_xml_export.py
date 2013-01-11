@@ -2,13 +2,13 @@
 # Copyright (c) 2012  Infrae. All rights reserved.
 # See also LICENSE.txt
 
+import unittest
 from datetime import datetime
 
 from Products.Silva.testing import TestRequest
-from Products.Silva.silvaxml.xmlexport import exportToString
 from Products.Silva.tests.test_xml_export import SilvaXMLTestCase
 
-from silva.core.contentlayout import interfaces
+from silva.core.contentlayout.interfaces import IBlockController, IBlockManager
 from silva.core.contentlayout.blocks.slot import BlockSlot
 from silva.core.contentlayout.blocks.text import TextBlock
 from silva.core.contentlayout.designs.registry import registry
@@ -19,7 +19,7 @@ from ..news.blocks import NewsInfoBlock, AgendaInfoBlock
 from ..testing import FunctionalLayer
 
 
-class TestPageExport(SilvaXMLTestCase):
+class PageXMLExportTestCase(SilvaXMLTestCase):
 
     layer = FunctionalLayer
 
@@ -27,49 +27,55 @@ class TestPageExport(SilvaXMLTestCase):
         self.root = self.layer.get_application()
         self.layer.login('editor')
         factory = self.root.manage_addProduct['Silva']
-        factory.manage_addFolder('exportbase', 'Export base')
-        self.base_folder = self.root.exportbase
-        factory = self.base_folder.manage_addProduct['silva.app.page']
-        factory.manage_addPage('apage', 'Page')
-        self.page = self.base_folder.apage
-        self.page_version = self.page.get_editable()
-        self.design = registry.lookup_design_by_name('adesign')
-        assert self.design, 'design not found'
-        self.page_version.set_design(self.design)
+        factory.manage_addFolder('base', 'Export base')
+        factory = self.root.base.manage_addProduct['silva.app.page']
+        factory.manage_addPage('page', 'Page')
+        design = registry.lookup_design_by_name('adesign')
+        version = self.root.base.page.get_editable()
+        version.set_design(design)
 
     def test_export_page(self):
-        xml, _ = exportToString(self.base_folder)
-        self.assertExportEqual(
-            xml, 'test_export_page.silvaxml', globs=globals())
+        exporter = self.assertExportEqual(
+            self.root.base,
+            'test_export_page.silvaxml')
+        self.assertEqual(exporter.getZexpPaths(), [])
+        self.assertEqual(exporter.getAssetPaths(), [])
+        self.assertEqual(exporter.getProblems(), [])
 
     def test_export_with_page_model(self):
-        factory = self.base_folder.manage_addProduct['silva.core.contentlayout']
-        factory.manage_addPageModel('pm', 'A Page Model')
-        page_model = self.base_folder.pm
-        version = page_model.get_editable()
-        version.set_design(self.design)
-        IPublicationWorkflow(page_model).publish()
+        factory = self.root.base.manage_addProduct['silva.core.contentlayout']
+        factory.manage_addPageModel('model', 'A Page Model')
 
+        model = self.root.base.model
+        version = model.get_editable()
+        version.set_design(registry.lookup_design_by_name('adesign'))
+        IPublicationWorkflow(model).publish()
+
+        page_version = self.root.base.page.get_editable()
         text_block = TextBlock(identifier='text block 1')
         controller = getWrapper(
-            (text_block, self.page_version, TestRequest()),
-            interfaces.IBlockController)
+            (text_block, page_version, TestRequest()),
+            IBlockController)
         controller.text = "<div>text</div>"
 
-        manager = interfaces.IBlockManager(version)
+        manager = IBlockManager(version)
         manager.add('two', text_block)
         manager.add('two', BlockSlot())
         manager.add('one', BlockSlot())
 
-        self.page_version.set_design(version)
-        self.assertEquals(version, self.page_version.get_design())
+        page_version = self.root.base.page.get_editable()
+        page_version.set_design(version)
+        self.assertEquals(version, page_version.get_design())
 
-        xml, _ = exportToString(self.base_folder)
-        self.assertExportEqual(
-            xml, 'test_export_with_page_model.silvaxml', globs=globals())
+        exporter = self.assertExportEqual(
+            self.root.base,
+            'test_export_with_page_model.silvaxml')
+        self.assertEqual(exporter.getZexpPaths(), [])
+        self.assertEqual(exporter.getAssetPaths(), [])
+        self.assertEqual(exporter.getProblems(), [])
 
 
-class TestExportNewsPage(SilvaXMLTestCase):
+class NewsPageXMLExportTestCase(SilvaXMLTestCase):
 
     layer = FunctionalLayer
 
@@ -80,53 +86,56 @@ class TestExportNewsPage(SilvaXMLTestCase):
 
         factory = self.root.manage_addProduct['silva.app.news']
         factory.manage_addNewsPublication('news', 'News')
-        # Show agenda items in the filter.
-        self.base_folder = self.root.news
-        self.base_folder.filter.set_show_agenda_items(True)
-        assert self.base_folder
-
+        self.root.news.filter.set_show_agenda_items(True)
 
     def test_export_news_info_page(self):
         # adding news page
-        factory = self.base_folder.manage_addProduct['silva.app.page']
+        factory = self.root.news.manage_addProduct['silva.app.page']
         factory.manage_addNewsPage('newspage', 'A News Page')
-        self.news_page = self.base_folder.newspage
-        assert self.news_page
-        self.news_page_version = self.news_page.get_editable()
-        self.design = registry.lookup_design_by_name('adesign')
-        assert self.design, 'design not found'
-        self.news_page_version.set_design(self.design)
+        version = self.root.news.newspage.get_editable()
+        design = registry.lookup_design_by_name('adesign')
+        self.assertIsNotNone(design)
+        self.assertIsNotNone(version)
 
-        self.news_page_version.set_subjects(['all'])
-        self.news_page_version.set_target_audiences(['generic'])
-        self.news_page_version.set_display_datetime(
-            datetime(2010, 9, 30, 10, 0, 0))
+        version.set_design(design)
+        version.set_subjects(['all'])
+        version.set_target_audiences(['generic'])
+        version.set_display_datetime(datetime(2010, 9, 30, 10, 0, 0))
 
         # adding blocks
-        block = NewsInfoBlock()
-        manager = interfaces.IBlockManager(self.news_page_version)
-        manager.add('one', block)
+        IBlockManager(version).add('one', NewsInfoBlock())
 
-        xml, _ = exportToString(self.base_folder)
-        self.assertExportEqual(
-            xml, 'test_export_news_page.silvaxml', globs=globals())
+        exporter = self.assertExportEqual(
+            self.root.news,
+            'test_export_news_page.silvaxml')
+        self.assertEqual(exporter.getZexpPaths(), [])
+        self.assertEqual(exporter.getAssetPaths(), [])
+        self.assertEqual(exporter.getProblems(), [])
 
-    def test_export_agenda_info_page(self): 
+    def test_export_agenda_info_page(self):
         # adding agenda page
-        factory = self.base_folder.manage_addProduct['silva.app.page']
+        factory = self.root.news.manage_addProduct['silva.app.page']
         factory.manage_addAgendaPage('agendapage', 'An Agenda Page')
-        self.agenda_page = self.base_folder.agendapage
-        assert self.agenda_page
-        self.agenda_page_version = self.agenda_page.get_editable()
-        self.design = registry.lookup_design_by_name('adesign')
-        assert self.design, 'design not found'
-        self.agenda_page_version.set_design(self.design)
+        version = self.root.news.agendapage.get_editable()
+        design = registry.lookup_design_by_name('adesign')
+        self.assertIsNotNone(version)
+        self.assertIsNotNone(design)
+
+        version.set_design(design)
 
         # adding block
-        block = AgendaInfoBlock()
-        manager = interfaces.IBlockManager(self.agenda_page_version)
-        manager.add('one', block)
+        IBlockManager(version).add('one', AgendaInfoBlock())
 
-        xml, _ = exportToString(self.base_folder)
-        self.assertExportEqual(
-            xml, 'test_export_agenda_page.silvaxml', globs=globals())
+        exporter = self.assertExportEqual(
+            self.root.news,
+            'test_export_agenda_page.silvaxml')
+        self.assertEqual(exporter.getZexpPaths(), [])
+        self.assertEqual(exporter.getAssetPaths(), [])
+        self.assertEqual(exporter.getProblems(), [])
+
+
+def test_suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(PageXMLExportTestCase))
+    suite.addTest(unittest.makeSuite(NewsPageXMLExportTestCase))
+    return suite

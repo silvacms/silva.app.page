@@ -9,7 +9,7 @@
 	xmlns:silva-external-sources="http://infrae.com/namespace/silva-external-sources"
 	xmlns:silva-extra="http://infrae.com/namespace/metadata/silva-extra"
 	silva_version="Silva 3.0dev">
-	<folder id="exportbase">
+	<folder id="base">
 		<metadata>
 			<set id="silva-content">
 				<silva-content:maintitle>Export base</silva-content:maintitle>
@@ -33,7 +33,7 @@
 			</set>
 		</metadata>
 		<content>
-			<contentlayout:page id="apage">
+			<contentlayout:page id="page">
 				<workflow>
 					<version id="0">
 						<status>unapproved</status>

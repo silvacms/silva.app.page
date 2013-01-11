@@ -6,10 +6,9 @@ from five import grok
 from zope.interface import Interface
 
 from Products.Silva.silvaxml.xmlimport import NS_SILVA_URI
-from Products.Silva.silvaxml.xmlexport import VersionedContentProducer,\
-    SilvaProducer
 
-from silva.core.contentlayout.silvaxml import NS_URI
+from silva.core.xml import producers
+from silva.core.contentlayout.silvaxml import NS_LAYOUT_URI
 from silva.core.contentlayout.silvaxml.xmlexport import BasePageProducer
 from silva.app.page.page import Page, PageVersion
 from silva.app.page.news.news import NewsPage
@@ -20,15 +19,15 @@ from silva.app.page.news.agenda import AgendaPage, AgendaPageVersion
 from silva.app.page.news.blocks import AgendaInfoBlock, NewsInfoBlock
 
 
-class PageProducer(VersionedContentProducer):
+class PageProducer(producers.SilvaVersionedContentProducer):
     """Export a Silva Page object to XML."""
     grok.adapts(Page, Interface)
 
     def sax(self):
-        self.startElementNS(NS_URI, 'page', {'id': self.context.id})
-        self.workflow()
-        self.versions()
-        self.endElementNS(NS_URI, 'page')
+        self.startElementNS(NS_LAYOUT_URI, 'page', {'id': self.context.id})
+        self.sax_workflow()
+        self.sax_versions()
+        self.endElementNS(NS_LAYOUT_URI, 'page')
 
 
 class PageVersionProducer(BasePageProducer):
@@ -38,20 +37,20 @@ class PageVersionProducer(BasePageProducer):
     def sax(self):
         self.startElementNS(NS_SILVA_URI, 'content',
                             {'version_id': self.context.id})
-        self.metadata()
-        self.design()
+        self.sax_metadata()
+        self.sax_design()
         self.endElementNS(NS_SILVA_URI, 'content')
 
 
-class NewsPageProducer(VersionedContentProducer):
+class NewsPageProducer(producers.SilvaVersionedContentProducer):
     """Export a News item Page object to XML."""
     grok.adapts(NewsPage, Interface)
 
     def sax(self):
-        self.startElementNS(NS_URI, 'newspage', {'id': self.context.id})
-        self.workflow()
-        self.versions()
-        self.endElementNS(NS_URI, 'newspage')
+        self.startElementNS(NS_LAYOUT_URI, 'newspage', {'id': self.context.id})
+        self.sax_workflow()
+        self.sax_versions()
+        self.endElementNS(NS_LAYOUT_URI, 'newspage')
 
 
 class NewsPageVersionProducer(NewsItemVersionProducer, BasePageProducer):
@@ -59,20 +58,21 @@ class NewsPageVersionProducer(NewsItemVersionProducer, BasePageProducer):
     """
     grok.adapts(NewsPageVersion, Interface)
 
-    def extra_content(self):
-        self.design()
+    def sax_content(self):
+        self.sax_design()
 
 
-class AgendaPageProducer(VersionedContentProducer):
+class AgendaPageProducer(producers.SilvaVersionedContentProducer):
     """ Export Agenda Page to XML
     """
     grok.adapts(AgendaPage, Interface)
 
     def sax(self):
-        self.startElementNS(NS_URI, 'agendapage', {'id': self.context.id})
-        self.workflow()
-        self.versions()
-        self.endElementNS(NS_URI, 'agendapage')
+        self.startElementNS(NS_LAYOUT_URI, 'agendapage',
+                            {'id': self.context.id})
+        self.sax_workflow()
+        self.sax_versions()
+        self.endElementNS(NS_LAYOUT_URI, 'agendapage')
 
 
 class AgendaPageVersionProducer(AgendaItemVersionProducer, BasePageProducer):
@@ -80,26 +80,26 @@ class AgendaPageVersionProducer(AgendaItemVersionProducer, BasePageProducer):
     """
     grok.adapts(AgendaPageVersion, Interface)
 
-    def extra_content(self):
-        self.design()
+    def sax_content(self):
+        self.sax_design()
 
 
-class NewsInfoBlockProducer(SilvaProducer):
+class NewsInfoBlockProducer(producers.SilvaProducer):
     """ Export AgendaInfoBlock to XML
     """
     grok.adapts(NewsInfoBlock, Interface)
 
     def sax(self, parent=None):
-        self.startElementNS(NS_URI, 'newsinfoblock')
-        self.endElementNS(NS_URI, 'newsinfoblock')
+        self.startElementNS(NS_LAYOUT_URI, 'newsinfoblock')
+        self.endElementNS(NS_LAYOUT_URI, 'newsinfoblock')
 
 
-class AgendaInfoBlockProducer(SilvaProducer):
+class AgendaInfoBlockProducer(producers.SilvaProducer):
     """ Export AgendaInfoBlock to XML
     """
     grok.adapts(AgendaInfoBlock, Interface)
 
     def sax(self, parent=None):
-        self.startElementNS(NS_URI, 'agendainfoblock')
-        self.endElementNS(NS_URI, 'agendainfoblock')
+        self.startElementNS(NS_LAYOUT_URI, 'agendainfoblock')
+        self.endElementNS(NS_LAYOUT_URI, 'agendainfoblock')
 

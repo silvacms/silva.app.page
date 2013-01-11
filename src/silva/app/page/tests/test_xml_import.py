@@ -2,9 +2,6 @@
 # Copyright (c) 2012  Infrae. All rights reserved.
 # See also LICENSE.txt
 
-from zope.component import getUtility
-from zope.publisher.browser import TestRequest
-
 from Products.Silva.tests.test_xml_import import SilvaXMLTestCase
 from silva.app.page.news.agenda import AgendaPageVersion, AgendaPage
 from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
@@ -12,7 +9,6 @@ from silva.app.page.news.news import NewsPage, NewsPageVersion
 from silva.app.page.page import Page, PageVersion
 from silva.core.contentlayout.interfaces import IBlockManager
 from silva.core.contentlayout.model import PageModelVersion
-from silva.core.messages.interfaces import IMessageService
 
 from ..testing import FunctionalLayer
 
@@ -26,10 +22,13 @@ class TestPageImport(SilvaXMLTestCase):
         self.layer.login('editor')
 
     def test_import_page(self):
-        self.import_file("test_import_page.silvaxml",
-                         globs=globals())
-        base = self.root._getOb('exportbase')
-        page = base._getOb('apage')
+        importer = self.assertImportFile(
+            "test_import_page.silvaxml",
+            ['/root/base',
+             '/root/base/page'])
+        self.assertEqual(importer.getProblems(), [])
+        base = self.root._getOb('base')
+        page = base._getOb('page')
         self.assertIsInstance(page, Page)
         page_version = page.get_editable()
         self.assertIsInstance(page_version, PageVersion)
@@ -37,28 +36,30 @@ class TestPageImport(SilvaXMLTestCase):
         self.assertTrue(design)
 
     def test_import_with_page_model(self):
-        self.import_file("test_import_with_page_model.silvaxml",
-                         globs=globals())
+        importer = self.assertImportFile(
+            "test_import_with_page_model.silvaxml",
+            ['/root/base/page',
+             '/root/base/model',
+             '/root/base'])
+        self.assertEqual(importer.getProblems(), [])
 
-        message_service = getUtility(IMessageService)
-        errors = message_service.receive(TestRequest(), namespace='error')
-        self.assertEquals(0, len(errors),
-            "import warning: " + "\n".join(map(str, errors)))
-
-        base = self.root._getOb('exportbase')
-        page = base._getOb('apage')
+        base = self.root._getOb('base')
+        page = base._getOb('page')
         self.assertIsInstance(page, Page)
         page_version = page.get_editable()
         self.assertIsInstance(page_version, PageVersion)
         page_model = page_version.get_design()
         self.assertIsInstance(page_model, PageModelVersion)
+        self.assertIs(base._getOb('model')._getOb('0'), page_model)
 
     def test_import_news_page(self):
-        self.import_file("test_import_news_page.silvaxml", globs=globals())
-        message_service = getUtility(IMessageService)
-        errors = message_service.receive(TestRequest(), namespace='error')
-        self.assertEquals(0, len(errors),
-            "import warning: " + "\n".join(map(str, errors)))
+        importer = self.assertImportFile(
+            "test_import_news_page.silvaxml",
+            ['/root/news/index',
+             '/root/news/newspage',
+             '/root/news/filter',
+             '/root/news'])
+        self.assertEqual(importer.getProblems(), [])
 
         base = self.root._getOb('news')
         news_page = base._getOb('newspage')
@@ -73,13 +74,14 @@ class TestPageImport(SilvaXMLTestCase):
         _, block = slot[0]
         self.assertIsInstance(block, NewsInfoBlock)
 
-
     def test_import_agenda_page(self):
-        self.import_file("test_import_agenda_page.silvaxml", globs=globals())
-        message_service = getUtility(IMessageService)
-        errors = message_service.receive(TestRequest(), namespace='error')
-        self.assertEquals(0, len(errors),
-            "import warning: " + "\n".join(map(str, errors)))
+        importer = self.assertImportFile(
+            "test_import_agenda_page.silvaxml",
+            ['/root/news/index',
+             '/root/news/agendapage',
+             '/root/news/filter',
+             '/root/news'])
+        self.assertEqual(importer.getProblems(), [])
 
         base = self.root._getOb('news')
         agenda_page = base._getOb('agendapage')

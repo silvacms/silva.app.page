@@ -2,7 +2,7 @@
 <silva xmlns="http://infrae.com/namespace/silva"
 	{namespaces}
 	silva_version="{version}">
-	<folder id="exportbase">
+	<folder id="base">
 		<metadata>
 			<set id="silva-content">
 				<silva-content:maintitle>Export base</silva-content:maintitle>
@@ -30,7 +30,7 @@
             </set>
 		</metadata>
 		<content>
-			<contentlayout:page id="apage">
+			<contentlayout:page id="page">
 				<workflow>
 					<version id="0">
 						<status>unapproved</status>
