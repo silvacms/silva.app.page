@@ -45,12 +45,13 @@ class TestPageImport(SilvaXMLTestCase):
 
         base = self.root._getOb('base')
         page = base._getOb('page')
+        model = base._getOb('model')
         self.assertIsInstance(page, Page)
         page_version = page.get_editable()
         self.assertIsInstance(page_version, PageVersion)
         page_model = page_version.get_design()
         self.assertIsInstance(page_model, PageModelVersion)
-        self.assertIs(base._getOb('model')._getOb('0'), page_model)
+        self.assertEqual(model.get_viewable(), page_model)
 
     def test_import_news_page(self):
         importer = self.assertImportFile(
