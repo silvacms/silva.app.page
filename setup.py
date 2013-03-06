@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '3.0dev'
+version = '3.0'
 
 tests_require = [
     'Products.Silva [test]',
@@ -32,10 +32,21 @@ setup(name='silva.app.page',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
+          'five.grok',
           'setuptools',
           'silva.core.conf',
-          'silva.core.interfaces',
           'silva.core.contentlayout',
+          'silva.core.interfaces',
+          'silva.core.views',
+          'silva.core.xml',
+          'silva.translations',
+          'silva.ui',
+          'zeam.form.silva',
+          'zope.component',
+          'zope.event',
+          'zope.i18n',
+          'zope.interface',
+          'zope.lifecycleevent',
           ],
       tests_require = tests_require,
       extras_require = {'test': tests_require},

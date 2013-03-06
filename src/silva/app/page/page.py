@@ -23,7 +23,6 @@ from silva.core.interfaces.adapters import IIndexEntries
 from silva.core.smi.content import IEditScreen
 from silva.core.smi.settings import Settings
 from silva.core.views import views as silvaviews
-from silva.core.views.interfaces import ISilvaURL
 from silva.translations import translate as _
 from silva.ui.interfaces import IJSView
 from silva.ui.rest.base import Screen, PageREST
