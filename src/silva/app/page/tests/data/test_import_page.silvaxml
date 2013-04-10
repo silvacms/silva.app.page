@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <silva xmlns="http://infrae.com/namespace/silva"
-	xmlns:contentlayout="http://infrae.com/namespace/silva/silva-core-contentlayout"
 	xmlns:html="http://www.w3.org/1999/xhtml"
 	xmlns:silva-app-document="http://infrae.com/namespace/silva-app-document"
 	xmlns:silva-app-news="http://infrae.com/namespace/silva-app-news"
+	xmlns:silva-app-page="http://infrae.com/namespace/silva-app-page"
 	xmlns:silva-content="http://infrae.com/namespace/metadata/silva-content"
+	xmlns:silva-core-contentlayout="http://infrae.com/namespace/silva-core-contentlayout"
 	xmlns:silva-core-editor="http://infrae.com/namespace/silva-core-editor"
 	xmlns:silva-external-sources="http://infrae.com/namespace/silva-external-sources"
 	xmlns:silva-extra="http://infrae.com/namespace/metadata/silva-extra"
@@ -33,7 +34,7 @@
 			</set>
 		</metadata>
 		<content>
-			<contentlayout:page id="page">
+			<silva-app-page:page id="page">
 				<workflow>
 					<version id="0">
 						<status>unapproved</status>
@@ -65,9 +66,9 @@
 							<silva-extra:subject />
 						</set>
 					</metadata>
-					<contentlayout:design id="adesign" />
+					<silva-core-contentlayout:design id="adesign" />
 				</content>
-			</contentlayout:page>
+			</silva-app-page:page>
 		</content>
 	</folder>
 </silva>

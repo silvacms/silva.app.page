@@ -64,7 +64,7 @@
           </content>
         </silva-app-news:news_viewer>
       </default>
-      <contentlayout:agendapage id="agendapage">
+      <silva-app-page:agenda_page id="agendapage">
         <workflow>
           <version id="0">
             <status>unapproved</status>
@@ -98,13 +98,13 @@
               </silvasettings:hide_from_tocs>
             </set>
           </metadata>
-          <contentlayout:design id="adesign">
-            <contentlayout:slot id="one">
-              <contentlayout:agendainfoblock />
-            </contentlayout:slot>
-          </contentlayout:design>
+          <silva-core-contentlayout:design id="adesign">
+            <silva-core-contentlayout:slot id="one">
+              <silva-app-page:agendainfoblock />
+            </silva-core-contentlayout:slot>
+          </silva-core-contentlayout:design>
         </content>
-      </contentlayout:agendapage>
+      </silva-app-page:agenda_page>
       <silva-app-news:news_filter id="filter"
                                   show_agenda_items="True" subjects="generic,root" target_audiences="all,root">
         <metadata>

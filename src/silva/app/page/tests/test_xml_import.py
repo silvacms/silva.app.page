@@ -2,6 +2,8 @@
 # Copyright (c) 2012-2013 Infrae. All rights reserved.
 # See also LICENSE.txt
 
+import unittest
+
 from Products.Silva.tests.test_xml_import import SilvaXMLTestCase
 from silva.app.page.news.agenda import AgendaPageVersion, AgendaPage
 from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
@@ -13,8 +15,7 @@ from silva.core.contentlayout.model import PageModelVersion
 from ..testing import FunctionalLayer
 
 
-class TestPageImport(SilvaXMLTestCase):
-
+class PageXMLImportTestCase(SilvaXMLTestCase):
     layer = FunctionalLayer
 
     def setUp(self):
@@ -96,3 +97,9 @@ class TestPageImport(SilvaXMLTestCase):
         slot = manager.get_slot('one')
         _, block = slot[0]
         self.assertIsInstance(block, AgendaInfoBlock)
+
+
+def test_suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(PageXMLImportTestCase))
+    return suite

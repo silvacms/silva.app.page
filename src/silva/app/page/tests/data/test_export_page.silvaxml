@@ -30,7 +30,7 @@
             </set>
 		</metadata>
 		<content>
-			<contentlayout:page id="page">
+			<silva-app-page:page id="page">
 				<workflow>
 					<version id="0">
 						<status>unapproved</status>
@@ -65,9 +65,9 @@
                           </silvasettings:hide_from_tocs>
                         </set>
 					</metadata>
-					<contentlayout:design id="adesign" />
+					<silva-core-contentlayout:design id="adesign" />
 				</content>
-			</contentlayout:page>
+			</silva-app-page:page>
 		</content>
 	</folder>
 </silva>

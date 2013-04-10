@@ -8,7 +8,7 @@ from zope.interface import Interface
 from Products.Silva.silvaxml.xmlimport import NS_SILVA_URI
 
 from silva.core.xml import producers
-from silva.core.contentlayout.silvaxml import NS_LAYOUT_URI
+from silva.app.page.silvaxml import NS_PAGE_URI
 from silva.core.contentlayout.silvaxml.xmlexport import BasePageProducer
 from silva.app.page.page import Page, PageVersion
 from silva.app.page.news.news import NewsPage
@@ -24,10 +24,10 @@ class PageProducer(producers.SilvaVersionedContentProducer):
     grok.adapts(Page, Interface)
 
     def sax(self):
-        self.startElementNS(NS_LAYOUT_URI, 'page', {'id': self.context.id})
+        self.startElementNS(NS_PAGE_URI, 'page', {'id': self.context.id})
         self.sax_workflow()
         self.sax_versions()
-        self.endElementNS(NS_LAYOUT_URI, 'page')
+        self.endElementNS(NS_PAGE_URI, 'page')
 
 
 class PageVersionProducer(BasePageProducer):
@@ -47,10 +47,10 @@ class NewsPageProducer(producers.SilvaVersionedContentProducer):
     grok.adapts(NewsPage, Interface)
 
     def sax(self):
-        self.startElementNS(NS_LAYOUT_URI, 'newspage', {'id': self.context.id})
+        self.startElementNS(NS_PAGE_URI, 'news_page', {'id': self.context.id})
         self.sax_workflow()
         self.sax_versions()
-        self.endElementNS(NS_LAYOUT_URI, 'newspage')
+        self.endElementNS(NS_PAGE_URI, 'news_page')
 
 
 class NewsPageVersionProducer(NewsItemVersionProducer, BasePageProducer):
@@ -68,11 +68,10 @@ class AgendaPageProducer(producers.SilvaVersionedContentProducer):
     grok.adapts(AgendaPage, Interface)
 
     def sax(self):
-        self.startElementNS(NS_LAYOUT_URI, 'agendapage',
-                            {'id': self.context.id})
+        self.startElementNS(NS_PAGE_URI, 'agenda_page', {'id': self.context.id})
         self.sax_workflow()
         self.sax_versions()
-        self.endElementNS(NS_LAYOUT_URI, 'agendapage')
+        self.endElementNS(NS_PAGE_URI, 'agenda_page')
 
 
 class AgendaPageVersionProducer(AgendaItemVersionProducer, BasePageProducer):
@@ -90,8 +89,8 @@ class NewsInfoBlockProducer(producers.SilvaProducer):
     grok.adapts(NewsInfoBlock, Interface)
 
     def sax(self, parent=None):
-        self.startElementNS(NS_LAYOUT_URI, 'newsinfoblock')
-        self.endElementNS(NS_LAYOUT_URI, 'newsinfoblock')
+        self.startElementNS(NS_PAGE_URI, 'newsinfoblock')
+        self.endElementNS(NS_PAGE_URI, 'newsinfoblock')
 
 
 class AgendaInfoBlockProducer(producers.SilvaProducer):
@@ -100,6 +99,6 @@ class AgendaInfoBlockProducer(producers.SilvaProducer):
     grok.adapts(AgendaInfoBlock, Interface)
 
     def sax(self, parent=None):
-        self.startElementNS(NS_LAYOUT_URI, 'agendainfoblock')
-        self.endElementNS(NS_LAYOUT_URI, 'agendainfoblock')
+        self.startElementNS(NS_PAGE_URI, 'agendainfoblock')
+        self.endElementNS(NS_PAGE_URI, 'agendainfoblock')
 

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <silva xmlns="http://infrae.com/namespace/silva"
-	xmlns:contentlayout="http://infrae.com/namespace/silva/silva-core-contentlayout"
-	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:silva-app-document="http://infrae.com/namespace/silva-app-document"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:silva-app-document="http://infrae.com/namespace/silva-app-document"
+    xmlns:silva-app-page="http://infrae.com/namespace/silva-app-page"
 	xmlns:silva-app-news="http://infrae.com/namespace/silva-app-news"
 	xmlns:silva-content="http://infrae.com/namespace/metadata/silva-content"
+	xmlns:silva-core-contentlayout="http://infrae.com/namespace/silva-core-contentlayout"
 	xmlns:silva-core-editor="http://infrae.com/namespace/silva-core-editor"
 	xmlns:silva-external-sources="http://infrae.com/namespace/silva-external-sources"
 	xmlns:silva-extra="http://infrae.com/namespace/metadata/silva-extra"
@@ -64,7 +66,7 @@
 					</content>
 				</silva-app-news:news_viewer>
 			</default>
-			<contentlayout:agendapage id="agendapage">
+			<silva-app-page:agenda_page id="agendapage">
 				<workflow>
 					<version id="0">
 						<status>unapproved</status>
@@ -94,13 +96,13 @@
 							<silva-extra:subject />
 						</set>
 					</metadata>
-					<contentlayout:design id="adesign">
-						<contentlayout:slot id="one">
-							<contentlayout:agendainfoblock />
-						</contentlayout:slot>
-					</contentlayout:design>
+					<silva-core-contentlayout:design id="adesign">
+						<silva-core-contentlayout:slot id="one">
+							<silva-app-page:agendainfoblock />
+						</silva-core-contentlayout:slot>
+					</silva-core-contentlayout:design>
 				</content>
-			</contentlayout:agendapage>
+			</silva-app-page:agenda_page>
 			<silva-app-news:news_filter id="filter"
 				show_agenda_items="True" subjects="generic,root" target_audiences="all,root">
 				<metadata>

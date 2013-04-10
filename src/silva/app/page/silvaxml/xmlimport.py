@@ -5,13 +5,14 @@
 from silva.core import conf as silvaconf
 from silva.core.xml import NS_SILVA_URI, handlers
 from silva.app.news.silvaxml import helpers
+from silva.app.page.silvaxml import NS_PAGE_URI
 from silva.core.contentlayout.silvaxml import NS_LAYOUT_URI
 from silva.core.contentlayout.silvaxml.xmlimport import DesignHandler,\
     BlockHandler
 from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
 
 
-silvaconf.namespace(NS_LAYOUT_URI)
+silvaconf.namespace(NS_PAGE_URI)
 
 
 class PageHandler(handlers.SilvaHandler):
@@ -20,15 +21,16 @@ class PageHandler(handlers.SilvaHandler):
     def getOverrides(self):
         return {(NS_SILVA_URI, 'content'): PageVersionHandler}
 
+    def _createContent(self, identifier):
+        factory = self.parent().manage_addProduct['silva.app.page']
+        factory.manage_addPage(identifier, '', no_default_version=True)
+
     def startElementNS(self, name, qname, attrs):
-        if name == (NS_LAYOUT_URI, 'page'):
-            uid = self.generateIdentifier(attrs)
-            factory = self.parent().manage_addProduct['silva.app.page']
-            factory.manage_addPage(uid, '', no_default_version=True)
-            self.setResultId(uid)
+        if name == (NS_PAGE_URI, 'page'):
+            self.createContent(attrs)
 
     def endElementNS(self, name, qname):
-        if name == (NS_LAYOUT_URI, 'page'):
+        if name == (NS_PAGE_URI, 'page'):
             self.notifyImport()
 
 
@@ -37,13 +39,13 @@ class PageVersionHandler(handlers.SilvaVersionHandler):
     def getOverrides(self):
         return {(NS_LAYOUT_URI, 'design'): DesignHandler}
 
+    def _createVersion(self, identifier):
+        factory = self.parent().manage_addProduct['silva.app.page']
+        factory.manage_addPageVersion(identifier, '')
+
     def startElementNS(self, name, qname, attrs):
         if (NS_SILVA_URI, 'content') == name:
-            uid = attrs[(None, 'version_id')].encode('utf-8')
-            factory = self.parent().manage_addProduct[
-                'silva.app.page']
-            factory.manage_addPageVersion(uid, '')
-            self.setResultId(uid)
+            self.createVersion(attrs)
 
     def endElementNS(self, name, qname):
         if (NS_SILVA_URI, 'content') == name:
@@ -53,20 +55,21 @@ class PageVersionHandler(handlers.SilvaVersionHandler):
 
 
 class NewsPageHandler(handlers.SilvaHandler):
-    silvaconf.name('newspage')
+    silvaconf.name('news_page')
 
     def getOverrides(self):
         return {(NS_SILVA_URI, 'content'): NewsPageVersionHandler}
 
+    def _createContent(self, identifier):
+        factory = self.parent().manage_addProduct['silva.app.page']
+        factory.manage_addNewsPage(identifier, '', no_default_version=True)
+
     def startElementNS(self, name, qname, attrs):
-        if name == (NS_LAYOUT_URI, 'newspage'):
-            uid = self.generateIdentifier(attrs)
-            factory = self.parent().manage_addProduct['silva.app.page']
-            factory.manage_addNewsPage(uid, '', no_default_version=True)
-            self.setResultId(uid)
+        if name == (NS_PAGE_URI, 'news_page'):
+            self.createContent(attrs)
 
     def endElementNS(self, name, qname):
-        if name == (NS_LAYOUT_URI, 'newspage'):
+        if name == (NS_PAGE_URI, 'news_page'):
             self.notifyImport()
 
 
@@ -75,14 +78,14 @@ class NewsPageVersionHandler(handlers.SilvaVersionHandler):
     def getOverrides(self):
         return {(NS_LAYOUT_URI, 'design'): DesignHandler}
 
+    def _createVersion(self, identifier):
+        factory = self.parent().manage_addProduct['silva.app.page']
+        factory.manage_addNewsPageVersion(identifier, '')
+
     def startElementNS(self, name, qname, attrs):
         if name == (NS_SILVA_URI, 'content'):
-            uid = attrs[(None, 'version_id')].encode('utf-8')
-            factory = self.parent().manage_addProduct['silva.app.page']
-            factory.manage_addNewsPageVersion(uid, '')
-            self.setResultId(uid)
+            version = self.createVersion(attrs)
 
-            version = self.result()
             helpers.set_as_list(version, 'target_audiences', attrs)
             helpers.set_as_list(version, 'subjects', attrs)
             helpers.set_as_naive_datetime(version, 'display_datetime', attrs)
@@ -95,20 +98,21 @@ class NewsPageVersionHandler(handlers.SilvaVersionHandler):
 
 
 class AgendaPageHandler(handlers.SilvaHandler):
-    silvaconf.name('agendapage')
+    silvaconf.name('agenda_page')
 
     def getOverrides(self):
         return {(NS_SILVA_URI, 'content'): AgendaPageVersionHandler}
 
+    def _createContent(self, identifier):
+        factory = self.parent().manage_addProduct['silva.app.page']
+        factory.manage_addAgendaPage(identifier, '', no_default_version=True)
+
     def startElementNS(self, name, qname, attrs):
-        if name == (NS_LAYOUT_URI, 'agendapage'):
-            uid = self.generateIdentifier(attrs)
-            factory = self.parent().manage_addProduct['silva.app.page']
-            factory.manage_addAgendaPage(uid, '', no_default_version=True)
-            self.setResultId(uid)
+        if name == (NS_PAGE_URI, 'agenda_page'):
+            self.createContent(attrs)
 
     def endElementNS(self, name, qname):
-        if name == (NS_LAYOUT_URI, 'agendapage'):
+        if name == (NS_PAGE_URI, 'agenda_page'):
             self.notifyImport()
 
 
@@ -117,14 +121,14 @@ class AgendaPageVersionHandler(handlers.SilvaVersionHandler):
     def getOverrides(self):
         return {(NS_LAYOUT_URI, 'design'): DesignHandler}
 
+    def _createVersion(self, identifier):
+        factory = self.parent().manage_addProduct['silva.app.page']
+        factory.manage_addAgendaPageVersion(identifier, '')
+
     def startElementNS(self, name, qname, attrs):
         if name == (NS_SILVA_URI, 'content'):
-            uid = attrs[(None, 'version_id')].encode('utf-8')
-            factory = self.parent().manage_addProduct['silva.app.page']
-            factory.manage_addAgendaPageVersion(uid, '')
-            self.setResultId(uid)
+            version = self.createVersion(attrs)
 
-            version = self.result()
             helpers.set_as_list(version, 'target_audiences', attrs)
             helpers.set_as_list(version, 'subjects', attrs)
             helpers.set_as_naive_datetime(version, 'display_datetime', attrs)
@@ -142,12 +146,12 @@ class NewsInfoBlockHandler(BlockHandler):
     silvaconf.name('newsinfoblock')
 
     def startElementNS(self, name, qname, attrs):
-        if name == (NS_LAYOUT_URI, 'newsinfoblock'):
+        if name == (NS_PAGE_URI, 'newsinfoblock'):
             block = NewsInfoBlock()
             self._block = block
 
     def endElementNS(self, name, qname):
-        if name == (NS_LAYOUT_URI, 'newsinfoblock'):
+        if name == (NS_PAGE_URI, 'newsinfoblock'):
             self.add_block(self._block)
             self._block = None
 
@@ -156,12 +160,12 @@ class AgendaInfoBlockHandler(BlockHandler):
     silvaconf.name('agendainfoblock')
 
     def startElementNS(self, name, qname, attrs):
-        if name == (NS_LAYOUT_URI, 'agendainfoblock'):
+        if name == (NS_PAGE_URI, 'agendainfoblock'):
             block = AgendaInfoBlock()
             self._block = block
 
     def endElementNS(self, name, qname):
-        if name == (NS_LAYOUT_URI, 'agendainfoblock'):
+        if name == (NS_PAGE_URI, 'agendainfoblock'):
             self.add_block(self._block)
             self._block = None
 

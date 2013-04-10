@@ -30,7 +30,7 @@
             </set>
 		</metadata>
 		<content>
-			<contentlayout:page id="page">
+			<silva-app-page:page id="page">
 				<workflow>
 					<version id="0">
 						<status>unapproved</status>
@@ -65,10 +65,10 @@
                           </silvasettings:hide_from_tocs>
                         </set>
 					</metadata>
-					<contentlayout:design path="base/model/0" />
+					<silva-core-contentlayout:design path="base/model/0" />
 				</content>
-			</contentlayout:page>
-			<contentlayout:pagemodel id="model">
+			</silva-app-page:page>
+			<silva-core-contentlayout:pagemodel id="model">
 				<workflow>
 					<version id="0">
 						<status>public</status>
@@ -119,21 +119,21 @@
                       </silvasettings:hide_from_tocs>
                     </set>
                   </metadata>
-                  <contentlayout:design id="adesign">
-                    <contentlayout:slot id="two">
-                      <contentlayout:slotblock css_class="" tag="section" />
-                      <contentlayout:textblock identifier="text block 1">
+                  <silva-core-contentlayout:design id="adesign">
+                    <silva-core-contentlayout:slot id="two">
+                      <silva-core-contentlayout:slotblock css_class="" tag="section" />
+                      <silva-core-contentlayout:textblock identifier="text block 1">
                         <silva-core-editor:text>
                           <html:div>text</html:div>
                         </silva-core-editor:text>
-                      </contentlayout:textblock>
-                    </contentlayout:slot>
-                    <contentlayout:slot id="one">
-                      <contentlayout:slotblock css_class="" tag="section" />
-                    </contentlayout:slot>
-                  </contentlayout:design>
+                      </silva-core-contentlayout:textblock>
+                    </silva-core-contentlayout:slot>
+                    <silva-core-contentlayout:slot id="one">
+                      <silva-core-contentlayout:slotblock css_class="" tag="section" />
+                    </silva-core-contentlayout:slot>
+                  </silva-core-contentlayout:design>
 				</content>
-			</contentlayout:pagemodel>
+			</silva-core-contentlayout:pagemodel>
 		</content>
 	</folder>
 </silva>
