@@ -35,6 +35,8 @@ class PageXMLExportTestCase(SilvaXMLTestCase):
         version.set_design(design)
 
     def test_export_page(self):
+        """Export a simple page.
+        """
         exporter = self.assertExportEqual(
             self.root.base,
             'test_export_page.silvaxml')
@@ -42,23 +44,24 @@ class PageXMLExportTestCase(SilvaXMLTestCase):
         self.assertEqual(exporter.getAssetPaths(), [])
         self.assertEqual(exporter.getProblems(), [])
 
-    def test_export_with_page_model(self):
+    def test_export_page_with_page_model(self):
+        """Export a page with a page model at the same time.
+        """
         factory = self.root.base.manage_addProduct['silva.core.contentlayout']
         factory.manage_addPageModel('model', 'A Page Model')
 
         model = self.root.base.model
-        version = model.get_editable()
-        version.set_design(registry.lookup_design_by_name('adesign'))
+        model_version = model.get_editable()
+        model_version.set_design(registry.lookup_design_by_name('adesign'))
         IPublicationWorkflow(model).publish()
 
-        page_version = self.root.base.page.get_editable()
         text_block = TextBlock(identifier='text block 1')
         controller = getWrapper(
-            (text_block, page_version, TestRequest()),
+            (text_block, model_version, TestRequest()),
             IBlockController)
         controller.text = "<div>text</div>"
 
-        manager = IBlockManager(version)
+        manager = IBlockManager(model_version)
         manager.add('two', text_block)
         manager.add('two', BlockSlot(identifier='slot-for-two'))
         manager.add('one', BlockSlot(
@@ -67,12 +70,32 @@ class PageXMLExportTestCase(SilvaXMLTestCase):
                 css_class='the-only-one'))
 
         page_version = self.root.base.page.get_editable()
-        page_version.set_design(version)
-        self.assertEquals(version, page_version.get_design())
+        page_version.set_design(model_version)
+        self.assertEquals(model_version, page_version.get_design())
 
         exporter = self.assertExportEqual(
             self.root.base,
-            'test_export_with_page_model.silvaxml')
+            'test_export_page_with_page_model.silvaxml')
+        self.assertEqual(exporter.getZexpPaths(), [])
+        self.assertEqual(exporter.getAssetPaths(), [])
+        self.assertEqual(exporter.getProblems(), [])
+
+    def test_export_page_with_external_page_model(self):
+        """Export a page that uses a page model that is not inside the
+        export folder.
+        """
+        factory = self.root.manage_addProduct['silva.core.contentlayout']
+        factory.manage_addPageModel('model', 'A Page Model')
+        IPublicationWorkflow(self.root.model).publish()
+
+        model_version = self.root.model.get_viewable()
+        page_version = self.root.base.page.get_editable()
+        page_version.set_design(model_version)
+        self.assertEquals(model_version, page_version.get_design())
+
+        exporter = self.assertExportEqual(
+            self.root.base,
+            'test_export_page_with_external_page_model.silvaxml')
         self.assertEqual(exporter.getZexpPaths(), [])
         self.assertEqual(exporter.getAssetPaths(), [])
         self.assertEqual(exporter.getProblems(), [])
