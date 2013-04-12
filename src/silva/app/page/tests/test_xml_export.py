@@ -60,8 +60,11 @@ class PageXMLExportTestCase(SilvaXMLTestCase):
 
         manager = IBlockManager(version)
         manager.add('two', text_block)
-        manager.add('two', BlockSlot())
-        manager.add('one', BlockSlot())
+        manager.add('two', BlockSlot(identifier='slot-for-two'))
+        manager.add('one', BlockSlot(
+                identifier='slot-for-one',
+                tag='div',
+                css_class='the-only-one'))
 
         page_version = self.root.base.page.get_editable()
         page_version.set_design(version)
