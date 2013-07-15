@@ -8,9 +8,9 @@ from Acquisition import aq_chain
 from zope.interface.verify import verifyObject
 
 from Products.Silva.tests.test_xml_import import SilvaXMLTestCase
-from silva.app.page.news.agenda import AgendaPageVersion, AgendaPage
+from silva.app.page.news.interfaces import IAgendaPage, IAgendaPageVersion
+from silva.app.page.news.interfaces import INewsPage, INewsPageVersion
 from silva.app.page.news.blocks import NewsInfoBlock, AgendaInfoBlock
-from silva.app.page.news.news import NewsPage, NewsPageVersion
 from silva.app.page.interfaces import IPage, IPageVersion
 from silva.core.contentlayout.interfaces import IBlockManager
 from silva.core.contentlayout.interfaces import IPageModel, IPageModelVersion
@@ -117,11 +117,10 @@ class PageXMLImportTestCase(SilvaXMLTestCase):
 
         base = self.root._getOb('news')
         news_page = base._getOb('newspage')
-        self.assertIsInstance(news_page, NewsPage)
+        self.assertTrue(verifyObject(INewsPage, news_page))
         version = news_page.get_editable()
-        self.assertIsInstance(version, NewsPageVersion)
-        design = version.get_design()
-        self.assertTrue(design)
+        self.assertTrue(verifyObject(INewsPageVersion, version))
+        self.assertIsNot(version.get_design(), None)
 
         manager = IBlockManager(version)
         slot = manager.get_slot('one')
@@ -141,11 +140,11 @@ class PageXMLImportTestCase(SilvaXMLTestCase):
 
         base = self.root._getOb('news')
         agenda_page = base._getOb('agendapage')
-        self.assertIsInstance(agenda_page, AgendaPage)
+        self.assertTrue(verifyObject(IAgendaPage, agenda_page))
         version = agenda_page.get_editable()
-        self.assertIsInstance(version, AgendaPageVersion)
+        self.assertTrue(verifyObject(IAgendaPageVersion, version))
         design = version.get_design()
-        self.assertTrue(design)
+        self.assertIsNot(design, None)
 
         manager = IBlockManager(version)
         slot = manager.get_slot('one')
