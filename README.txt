@@ -2,10 +2,10 @@
 silva.app.page
 ==============
 
-``silva.app.page`` provides new content type for Silva, *Silva Page*,
-and if ``silva.app.news`` is installed, *Silva News Page* and *Silva
-Agenda Page*. Those content types let editors create public content
-with the help of ``silva.core.contentlayout``.
+``silva.app.page`` provides new content type for `Silva`_, *Silva
+Page*, and if ``silva.app.news`` is installed, *Silva News Page* and
+*Silva Agenda Page*. Those content types let editors create public
+content with the help of ``silva.core.contentlayout``.
 
 Credits
 =======
@@ -18,4 +18,5 @@ Code repository
 You can find the code of this extension in Mercurial:
 https://hg.infrae.com/silva.app.page/.
 
+.. _Silva: http://silvacms.org/
 .. _UCL: http://www.ucl.ac.uk/
