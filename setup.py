@@ -13,18 +13,19 @@ tests_require = [
 
 setup(name='silva.app.page',
       version=version,
-      description="Silva Extention provides rich content layout object (Silva Page)",
+      description="Silva page content types for Silva CMS",
       long_description=open("README.txt").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
-      # Get more strings from
-      # http://pypi.python.org/pypi?:action=list_classifiers
       classifiers=[
-        "Programming Language :: Python",
+          "Environment :: Web Environment",
+          "Programming Language :: Python",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+          "Framework :: Zope2",
         ],
-      keywords='',
+      keywords='silva contentlayout zope cms',
       author='Infrae',
       author_email='info@infrae.com',
-      url='http://hg.infrae.com/silva.app.page',
+      url='https://github.com/silvacms/silva.app.page',
       license='GPL',
       package_dir={'': 'src'},
       packages=find_packages('src'),

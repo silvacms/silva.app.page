@@ -15,8 +15,8 @@ Thanks to `UCL`_ for the port of this extension to Silva 3.0.
 Code repository
 ===============
 
-You can find the code of this extension in Mercurial:
-https://hg.infrae.com/silva.app.page/.
+You can find the code of this extension in Git:
+https://github.com/silvacms/silva.app.page
 
 .. _Silva: http://silvacms.org/
 .. _UCL: http://www.ucl.ac.uk/
