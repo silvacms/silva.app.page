@@ -2,7 +2,7 @@
 silva.app.page
 ==============
 
-``silva.app.page`` provides new content type for `Silva`_, *Silva
+``silva.app.page`` provides new content type for `Silva`_ 3, *Silva
 Page*, and if ``silva.app.news`` is installed, *Silva News Page* and
 *Silva Agenda Page*. Those content types let editors create public
 content with the help of ``silva.core.contentlayout``.
