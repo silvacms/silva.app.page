@@ -13,14 +13,15 @@ from silva.core.contentlayout.blocks.slot import BlockSlot
 from silva.core.contentlayout.blocks.text import TextBlock
 from silva.core.contentlayout.designs.registry import registry
 from silva.core.interfaces import IPublicationWorkflow
+from silva.app.news.interfaces import IServiceNews
 from zeam.component import getWrapper
+from zope.component import getUtility
 
 from ..news.blocks import NewsInfoBlock, AgendaInfoBlock
 from ..testing import FunctionalLayer
 
 
 class PageXMLExportTestCase(SilvaXMLTestCase):
-
     layer = FunctionalLayer
 
     def setUp(self):
@@ -107,7 +108,6 @@ class PageXMLExportTestCase(SilvaXMLTestCase):
 
 
 class NewsPageXMLExportTestCase(SilvaXMLTestCase):
-
     layer = FunctionalLayer
 
     def setUp(self):
@@ -118,6 +118,10 @@ class NewsPageXMLExportTestCase(SilvaXMLTestCase):
             factory = self.root.manage_addProduct['silva.app.news']
             factory.manage_addNewsPublication('news', 'News')
             self.root.news.filter.set_show_agenda_items(True)
+            service = getUtility(IServiceNews)
+            service.add_subject('all', 'All')
+            service.add_subject('other', 'Others')
+            service.add_target_audience('generic', 'Generic')
 
     def test_export_news_info_page(self):
         # adding news page
