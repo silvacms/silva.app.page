@@ -25,5 +25,11 @@
       <span class="label" i18n:translate="">End: </span>
       <span class="value" tal:content="occurrence.end" />
     </div>
+    <div class="recurrence" tal:condition="occurrence.recurrence_until">
+      <span class="label" i18n:translate="">Repeated </span>
+      <span class="value" tal:content="occurrence.recurrence" />
+      <span class="label" i18n:translate="">until </span>
+      <span class="value" tal:content="occurrence.recurrence_until" />
+    </div>
   </div>
 </div>

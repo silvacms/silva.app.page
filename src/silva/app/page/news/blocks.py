@@ -2,6 +2,9 @@
 # Copyright (c) 2012-2013 Infrae. All rights reserved.
 # See also LICENSE.txt
 
+import localdatetime
+
+from datetime import datetime
 from five import grok
 from grokcore.chameleon.components import ChameleonPageTemplate
 from zope.cachedescriptors.property import CachedProperty
@@ -12,6 +15,7 @@ from zope.publisher.interfaces.http import IHTTPRequest
 from zope.traversing.browser import absoluteURL
 
 from silva.app.news.interfaces import IServiceNews
+from silva.app.news.datetimeutils import RRuleData
 from silva.core.contentlayout.blocks import Block, BlockController
 from silva.translations import translate as _
 from silva.ui.rest import UIREST
@@ -54,7 +58,14 @@ class NewsInfoBlockController(BlockController):
     def publication_date(self):
         date = self.version.get_display_datetime()
         if date:
-            return self.format_date(date)
+            if not isinstance(date, datetime):
+                date = date.asdatetime()
+            local_months = localdatetime.get_month_names(self.request)
+            return u'%s.%s.%s, %s:%s' % (date.day,
+                                         local_months[date.month-1],
+                                         date.year,
+                                         '%02d' % (date.hour),
+                                         '%02d' % (date.minute))
         return u''
 
     def default_namespace(self):
@@ -77,16 +88,54 @@ class AgendaInfoBlockController(NewsInfoBlockController):
     template = ChameleonPageTemplate(filename="templates/agendainfo.cpt")
 
     def occurrences(self):
+        local_months = localdatetime.get_month_names(self.request)
         for occurrence in self.version.get_occurrences():
             timezone = occurrence.get_timezone()
-            yield {
-                'start': self.format_date(
-                    occurrence.get_start_datetime(timezone),
-                    occurrence.is_all_day()),
-                'end': self.format_date(
-                    occurrence.get_end_datetime(timezone),
-                    occurrence.is_all_day()),
-                'location': occurrence.get_location()}
+            location = occurrence.get_location()
+            display_time = not occurrence.is_all_day()
+
+            start = occurrence.get_start_datetime(timezone)
+            end = occurrence.get_end_datetime(timezone)
+            rec_til = occurrence.get_end_recurrence_datetime()
+
+            start_str = u'%s.%s.%s' % (start.day,
+                                       local_months[start.month-1],
+                                       start.year)
+
+            end_str = u'%s.%s.%s' % (end.day,
+                                     local_months[end.month-1],
+                                     end.year)
+
+            if display_time:
+                start_str = u'%s, %s:%s' % (start_str,
+                                            '%02d' % (start.hour),
+                                            '%02d' % (start.minute))
+                end_str = u'%s, %s:%s' % (end_str,
+                                          '%02d' % (end.hour),
+                                          '%02d' % (end.minute))
+
+            odi = {
+                'start': start_str,
+                'end': end_str,
+                'location': location,
+                'recurrence_until': rec_til,
+            }
+
+            if rec_til:
+                rec_til_str = u'%s.%s.%s' % (rec_til.day,
+                                             local_months[rec_til.month-1],
+                                             rec_til.year)
+
+                if display_time:
+                    rec_til_str = u'%s, %s:%s' % (rec_til_str,
+                                                  '%02d' % (rec_til.hour),
+                                                  '%02d' % (rec_til.minute))
+
+                odi['recurrence_until'] = rec_til_str
+                recurrence = RRuleData(occurrence.get_recurrence()).get('FREQ')
+                odi['recurrence'] = recurrence
+
+            yield odi
 
 
 class AddBlockREST(UIREST):
