@@ -7,14 +7,12 @@ import localdatetime
 from datetime import datetime
 from five import grok
 from grokcore.chameleon.components import ChameleonPageTemplate
-from zope.cachedescriptors.property import CachedProperty
-from zope.component import getUtility
+from zope.cachedescriptors.property import Lazy
 from zope.event import notify
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.traversing.browser import absoluteURL
 
-from silva.app.news.interfaces import IServiceNews
 from silva.app.news.datetimeutils import RRuleData
 from silva.core.contentlayout.blocks import Block, BlockController
 from silva.translations import translate as _
@@ -46,26 +44,29 @@ class NewsInfoBlockController(BlockController):
         self.version = version
         self.request = request
 
-    @CachedProperty
+    @Lazy
     def url(self):
         return absoluteURL(self.version.get_content(), self.request)
 
-    @CachedProperty
-    def format_date(self):
-        return getUtility(IServiceNews).format_date
+    @Lazy
+    def month_names(self):
+        return localdatetime.get_month_names(self.request)
 
-    @CachedProperty
+    def format_date(self, date, with_hours=True):
+        if not isinstance(date, datetime):
+            date = date.asdatetime()
+        formatted = u'%s.%s.%s' % (
+            date.day, self.month_names[date.month-1], date.year)
+        if with_hours:
+            formatted += u', %s:%s' % (
+                '%02d' % date.hour, '%02d' % date.minute)
+        return formatted
+
+    @Lazy
     def publication_date(self):
         date = self.version.get_display_datetime()
         if date:
-            if not isinstance(date, datetime):
-                date = date.asdatetime()
-            local_months = localdatetime.get_month_names(self.request)
-            return u'%s.%s.%s, %s:%s' % (date.day,
-                                         local_months[date.month-1],
-                                         date.year,
-                                         '%02d' % (date.hour),
-                                         '%02d' % (date.minute))
+            return self.format_date(date)
         return u''
 
     def default_namespace(self):
@@ -88,54 +89,28 @@ class AgendaInfoBlockController(NewsInfoBlockController):
     template = ChameleonPageTemplate(filename="templates/agendainfo.cpt")
 
     def occurrences(self):
-        local_months = localdatetime.get_month_names(self.request)
         for occurrence in self.version.get_occurrences():
             timezone = occurrence.get_timezone()
-            location = occurrence.get_location()
-            display_time = not occurrence.is_all_day()
+            with_hours = not occurrence.is_all_day()
 
             start = occurrence.get_start_datetime(timezone)
             end = occurrence.get_end_datetime(timezone)
-            rec_til = occurrence.get_end_recurrence_datetime()
+            end_recurrence = occurrence.get_end_recurrence_datetime()
 
-            start_str = u'%s.%s.%s' % (start.day,
-                                       local_months[start.month-1],
-                                       start.year)
+            information = {
+                'start': self.format_date(start, with_hours),
+                'end': self.format_date(end, with_hours),
+                'location': occurrence.get_location(),
+                'recurrence_until': None}
 
-            end_str = u'%s.%s.%s' % (end.day,
-                                     local_months[end.month-1],
-                                     end.year)
+            if end_recurrence:
+                information.update({
+                    'recurrence_until': self.format_date(
+                        end_recurrence, with_hours),
+                    'recurrence': RRuleData(
+                        occurrence.get_recurrence()).get('FREQ')})
 
-            if display_time:
-                start_str = u'%s, %s:%s' % (start_str,
-                                            '%02d' % (start.hour),
-                                            '%02d' % (start.minute))
-                end_str = u'%s, %s:%s' % (end_str,
-                                          '%02d' % (end.hour),
-                                          '%02d' % (end.minute))
-
-            odi = {
-                'start': start_str,
-                'end': end_str,
-                'location': location,
-                'recurrence_until': rec_til,
-            }
-
-            if rec_til:
-                rec_til_str = u'%s.%s.%s' % (rec_til.day,
-                                             local_months[rec_til.month-1],
-                                             rec_til.year)
-
-                if display_time:
-                    rec_til_str = u'%s, %s:%s' % (rec_til_str,
-                                                  '%02d' % (rec_til.hour),
-                                                  '%02d' % (rec_til.minute))
-
-                odi['recurrence_until'] = rec_til_str
-                recurrence = RRuleData(occurrence.get_recurrence()).get('FREQ')
-                odi['recurrence'] = recurrence
-
-            yield odi
+            yield information
 
 
 class AddBlockREST(UIREST):
